@@ -1,0 +1,1 @@
+Search.setIndex({envversion:42,terms:{index:0,search:0,modul:0,readm:1,content:0,includ:1,rst:1,page:0},objtypes:{},objnames:{},filenames:["index","includeme"],titles:["Welcome to Choco3 User Guide&#8217;s documentation!","&lt;no title&gt;"],objects:{},titleterms:{choco3:0,welcom:0,indic:0,user:0,tabl:0,guid:0,document:0}})
