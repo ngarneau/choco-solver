@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installing Choco 3.2.0 &mdash; Choco3 3.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Choco3 3.2.0 documentation" href="../index.html" />
+    <link rel="next" title="Overview of Choco 3.2.0" href="12_overview.html" />
+    <link rel="prev" title="Welcome to Choco3’s documentation!" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="12_overview.html" title="Overview of Choco 3.2.0"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to Choco3’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Choco3 3.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installing-choco-version">
+<h1>Installing Choco 3.2.0<a class="headerlink" href="#installing-choco-version" title="Permalink to this headline">¶</a></h1>
+<p>Choco 3.2.0 is a java library based on <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">Java 7</a>.
+First of all, you need to be make sure that the right version of java is installed.</p>
+<div class="section" id="update-the-classpath">
+<h2>Update the classpath<a class="headerlink" href="#update-the-classpath" title="Permalink to this headline">¶</a></h2>
+<p>Simply add the jar file to the classpath of your project (in cli or in your favorite IDE).</p>
+<div class="code highlight-python"><div class="highlight"><pre>$ java -cp .:choco- |version|.jar my.project.Main
+</pre></div>
+</div>
+</div>
+<div class="section" id="which-jar-to-select">
+<h2>Which jar to select ?<a class="headerlink" href="#which-jar-to-select" title="Permalink to this headline">¶</a></h2>
+<p>We provide a zip file which contains the following files:</p>
+<dl class="docutils">
+<dt>apidocs-3.2.0.zip</dt>
+<dd>Javadoc of Choco-3.2.0</dd>
+<dt>choco-solver-3.1.1-jar-with-dependencies.jar</dt>
+<dd>An ready-to-use jar file which contains <cite>choco-environment</cite> and <cite>choco-solver</cite> artifacts and dependencies; it enable modeling and solving CP problems.</dd>
+<dt>choco-solver-3.2.0-sources.jar</dt>
+<dd>The source of the artifacts <cite>choco-environment</cite> and <cite>choco-solver</cite>.</dd>
+<dt>choco-parser-3.2.0.jar</dt>
+<dd>A jar file base on the artifact <cite>choco-parser</cite> without any dependency; it should be selected to input FlatZinc files.</dd>
+<dt>choco-parser-3.2.0-jar-with-dependencies.jar</dt>
+<dd>A ready-to-use jar file which contains the following artifacts: <cite>choco-environment</cite>, <cite>choco-solver</cite> and <cite>choco-parser</cite> and the required dependencies. <strong>This should be the default choice</strong>.</dd>
+<dt>choco-samples-3.2.0-sources.jar</dt>
+<dd>The source of the artifact <cite>choco-samples</cite> made of problems modeled with Choco.</dd>
+</dl>
+</div>
+<div class="section" id="as-a-maven-dependency">
+<h2>As a Maven Dependency<a class="headerlink" href="#as-a-maven-dependency" title="Permalink to this headline">¶</a></h2>
+<p>Choco is build and managed using <a class="reference external" href="http://maven.apache.org/download.cgi">Maven3</a>.
+To declare Choco as a dependency of your project, simply update the <tt class="docutils literal"><span class="pre">pom.xml</span></tt> of your project by adding the following instruction:</p>
+<div class="code xml highlight-python"><div class="highlight"><pre>&lt;dependency&gt;
+  &lt;groupId&gt;choco&lt;/groupId&gt;
+  &lt;artifactId&gt;choco-solver&lt;/artifactId&gt;
+  &lt;version&gt;|version|&lt;/version&gt;
+&lt;/dependency&gt;
+</pre></div>
+</div>
+<p>You need to add a new repository to the list of declared ones in the <tt class="docutils literal"><span class="pre">pom.xml</span></tt> of your project:</p>
+<div class="code xml highlight-python"><div class="highlight"><pre>&lt;repository&gt;
+  &lt;id&gt;choco.repos&lt;/id&gt;
+  &lt;url&gt;http://www.emn.fr/z-info/choco-repo/mvn/repository/&lt;/url&gt;
+&lt;/repository&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="compiling-sources">
+<h2>Compiling sources<a class="headerlink" href="#compiling-sources" title="Permalink to this headline">¶</a></h2>
+<p>As a Maven-based project, Choco can be installed in a few instructions.
+First, run the following command:</p>
+<div class="code highlight-python"><div class="highlight"><pre>$ mvn install -DskipTests
+</pre></div>
+</div>
+<p>This instruction downloads the dependencies required for Choco3 (such as the <a class="reference external" href="http://trove.starlight-systems.com/">trove4j</a> and <a class="reference external" href="http://logback.qos.ch/">logback</a>) then compiles the sources. The instruction <tt class="docutils literal"><span class="pre">-DskipTests</span></tt> avoids running the tests after compilation (and saves you a couple of hours). Regression tests are run on a private continuous integration server.</p>
+<p>Maven provides commands to generate files needed for an IDE project setup.
+For example, to create the project files for your favorite IDE:</p>
+<dl class="docutils">
+<dt>IntelliJ Idea</dt>
+<dd><tt class="docutils literal"><span class="pre">$</span> <span class="pre">mvn</span> <span class="pre">idea:idea</span></tt></dd>
+<dt>Eclipse</dt>
+<dd><tt class="docutils literal"><span class="pre">$</span> <span class="pre">mvn</span> <span class="pre">eclipse:eclipse</span></tt></dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installing Choco 3.2.0</a><ul>
+<li><a class="reference internal" href="#update-the-classpath">Update the classpath</a></li>
+<li><a class="reference internal" href="#which-jar-to-select">Which jar to select ?</a></li>
+<li><a class="reference internal" href="#as-a-maven-dependency">As a Maven Dependency</a></li>
+<li><a class="reference internal" href="#compiling-sources">Compiling sources</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Welcome to Choco3&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="12_overview.html"
+                        title="next chapter">Overview of Choco 3.2.0</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/1_overview/11_installation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="12_overview.html" title="Overview of Choco 3.2.0"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to Choco3’s documentation!"
+             >previous</a> |</li>
+        <li><a href="../index.html">Choco3 3.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Charles Prud&#39;homme, Jean-Guillaume Fages.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
