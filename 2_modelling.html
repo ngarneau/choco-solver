@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Modeling with Choco &mdash; Choco3 3.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Choco3 3.2.0 documentation" href="index.html" />
+    <link rel="next" title="Solving problems" href="3_solving.html" />
+    <link rel="prev" title="Preliminaries" href="1_overview.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="3_solving.html" title="Solving problems"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="1_overview.html" title="Preliminaries"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Choco3 3.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="modeling-with-choco">
+<h1>Modeling with Choco<a class="headerlink" href="#modeling-with-choco" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-solver">
+<h2>The solver<a class="headerlink" href="#the-solver" title="Permalink to this headline">¶</a></h2>
+<p>The object <tt class="code docutils literal"><span class="pre">Solver</span></tt> is the key component. It is built as following:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">Solver</span> <span class="n">solver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solver</span><span class="o">();</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">Solver</span> <span class="n">solver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solver</span><span class="o">(</span><span class="s">&quot;my problem&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>This should be the first instruction:</p>
+<div class="highlight-java"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre>        <span class="c1">// 1. Create a Solver</span>
+        <span class="n">Solver</span> <span class="n">solver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solver</span><span class="o">(</span><span class="s">&quot;my first problem&quot;</span><span class="o">);</span>
+        <span class="c1">// 2. Create variables through the variable factory</span>
+        <span class="n">IntVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">bounded</span><span class="o">(</span><span class="s">&quot;X&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+        <span class="n">IntVar</span> <span class="n">y</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">bounded</span><span class="o">(</span><span class="s">&quot;Y&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+        <span class="c1">// 3. Create and post constraints by using constraint factories</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">IntConstraintFactory</span><span class="o">.</span><span class="na">arithm</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="s">&quot;+&quot;</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="s">&quot;&lt;&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">));</span>
+        <span class="c1">// 4. Define the search strategy</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">IntStrategyFactory</span><span class="o">.</span><span class="na">inputOrder_InDomainMin</span><span class="o">(</span><span class="k">new</span> <span class="n">IntVar</span><span class="o">[]{</span><span class="n">x</span><span class="o">,</span><span class="n">y</span><span class="o">}));</span>
+        <span class="c1">// 5. Launch the resolution process</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">findSolution</span><span class="o">();</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="declaring-variables">
+<h2>Declaring variables<a class="headerlink" href="#declaring-variables" title="Permalink to this headline">¶</a></h2>
+<p>Choco 3.2 includes five types of variables: <tt class="docutils literal"><span class="pre">IntVar</span></tt>, <tt class="docutils literal"><span class="pre">BoolVar</span></tt>, <tt class="docutils literal"><span class="pre">SetVar</span></tt>, <tt class="docutils literal"><span class="pre">GraphVar</span></tt> and <tt class="docutils literal"><span class="pre">RealVar</span></tt>.
+A factory is available to ease the declaration of variables: <tt class="docutils literal"><span class="pre">VariableFactory</span></tt>.
+At least, a varible requires a name and a solver to be declared in.
+The name is only helpful for the user, to read the results computed.</p>
+<div class="section" id="integer-variable">
+<h3>Integer variable<a class="headerlink" href="#integer-variable" title="Permalink to this headline">¶</a></h3>
+<p>An integer variable is based on domain made with integer values.
+There exists under three different forms: <strong>bounded</strong>, <strong>enumerated</strong> or <strong>boolean</strong>.
+An alternative is to declare variable-based views.</p>
+<div class="section" id="bounded-variable">
+<h4>Bounded variable<a class="headerlink" href="#bounded-variable" title="Permalink to this headline">¶</a></h4>
+<p>Bounded (integer) variables take their value in <span class="math">\([\![a,b]\!]\)</span> where <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are integers such that <span class="math">\(a &lt; b\)</span> (the case where <span class="math">\(a = b\)</span> is handled through views).
+Those variables are pretty light in memory (the domain requires two integers) but cannot represent holes in the domain.</p>
+<p>To create a bounded variable, the <tt class="docutils literal"><span class="pre">VariableFactory</span></tt> should be used:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">v</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">bounded</span><span class="o">(</span><span class="s">&quot;v&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">12</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To create an array of 5 bounded variables of initial domain <span class="math">\([\![-2,8]\!]\)</span>:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span><span class="o">[]</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">boundedArray</span><span class="o">(</span><span class="s">&quot;vs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="o">-</span><span class="mi">2</span><span class="o">,</span> <span class="mi">8</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To create a matrix of 5x6 bounded variables of initial domain <span class="math">\([\![0,5]\!]\)</span> :</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span><span class="o">[][]</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">boundedMatrix</span><span class="o">(</span><span class="s">&quot;vs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enumerated-variable">
+<h4>Enumerated variable<a class="headerlink" href="#enumerated-variable" title="Permalink to this headline">¶</a></h4>
+<p>Integer variables with enumerated domains, or shortly, enumerated variables, take their value in <cite>[![a,b]!]</cite> where <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are integers such that <span class="math">\(a &lt; b\)</span> (the case where <span class="math">\(a = b\)</span> is handled through views) or in an array of ordered values <span class="math">\({a,b,c,..,z}\)</span>, where <span class="math">\(a &lt; b &lt; c ... &lt; z\)</span>.
+Enumerated variables provide more information than bounded variables but are heavier in memory (usually the domain requires a bitset).</p>
+<p>To create an enumerated variable, the <tt class="docutils literal"><span class="pre">VariableFactory</span></tt> should be used:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">v</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">enumerated</span><span class="o">(</span><span class="s">&quot;v&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">12</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>which is equivalent to :</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">v</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">enumerated</span><span class="o">(</span><span class="s">&quot;v&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[]{</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">7</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="mi">9</span><span class="o">,</span><span class="mi">10</span><span class="o">,</span><span class="mi">11</span><span class="o">,</span><span class="mi">12</span><span class="o">},</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To create a variable with holes in its initial domain:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">v</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">enumerated</span><span class="o">(</span><span class="s">&quot;v&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[]{</span><span class="mi">1</span><span class="o">,</span><span class="mi">7</span><span class="o">,</span><span class="mi">8</span><span class="o">},</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To create an array of 5 enumerated variables with same domains:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span><span class="o">[]</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">enumeratedArray</span><span class="o">(</span><span class="s">&quot;vs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="o">-</span><span class="mi">2</span><span class="o">,</span> <span class="mi">8</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+
+<span class="n">IntVar</span><span class="o">[]</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">enumeratedArray</span><span class="o">(</span><span class="s">&quot;vs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[]{-</span><span class="mi">10</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">10</span><span class="o">},</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To create a matrix of 5x6 enumerated variables with same domains:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span><span class="o">[][]</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">enumeratedMatrix</span><span class="o">(</span><span class="s">&quot;vs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+
+<span class="n">IntVar</span><span class="o">[][]</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">enumeratedMatrix</span><span class="o">(</span><span class="s">&quot;vs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[]{</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">99</span><span class="o">},</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="boolean-variable">
+<h4>Boolean variable<a class="headerlink" href="#boolean-variable" title="Permalink to this headline">¶</a></h4>
+<p>Boolean variables, BoolVar, are specific <tt class="docutils literal"><span class="pre">IntVar</span></tt> which take their value in <span class="math">\([\![0,1]\!]\)</span>.</p>
+<p>To create a new boolean variable:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">BoolVar</span> <span class="n">b</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">bool</span><span class="o">(</span><span class="s">&quot;b&quot;</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To create an array of 5 boolean variables:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">BoolVar</span><span class="o">[]</span> <span class="n">bs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">boolArray</span><span class="o">(</span><span class="s">&quot;bs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To create a matrix of 5x6 boolean variables:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">BoolVar</span><span class="o">[]</span> <span class="n">bs</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">boolMatrix</span><span class="o">(</span><span class="s">&quot;bs&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="variable-s-view">
+<h4>Variable&#8217;s view<a class="headerlink" href="#variable-s-view" title="Permalink to this headline">¶</a></h4>
+<p>Views are particular integer variables, they can be used inside constraints.
+Their domains are implicitly defined by a function and implied variables.</p>
+<p><tt class="docutils literal"><span class="pre">x</span></tt> is a constant :</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Views</span><span class="o">.</span><span class="na">fixed</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">y</span> <span class="pre">+</span> <span class="pre">2</span></tt> :</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Views</span><span class="o">.</span><span class="na">offset</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="mi">2</span><span class="o">);</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">-y</span></tt> :</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Views</span><span class="o">.</span><span class="na">minus</span><span class="o">(</span><span class="n">y</span><span class="o">);</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">3*y</span></tt> :</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Views</span><span class="o">.</span><span class="na">scale</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="mi">3</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>Views can be combined together:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">IntVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Views</span><span class="o">.</span><span class="na">offset</span><span class="o">(</span><span class="n">Views</span><span class="o">.</span><span class="na">scale</span><span class="o">(</span><span class="n">y</span><span class="o">,</span><span class="mi">2</span><span class="o">),</span><span class="mi">5</span><span class="o">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="set-variable">
+<h3>Set variable<a class="headerlink" href="#set-variable" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="graph-variable">
+<h3>Graph variable<a class="headerlink" href="#graph-variable" title="Permalink to this headline">¶</a></h3>
+<p>A graph variable <tt class="docutils literal"><span class="pre">GV</span></tt> is a kind of set variable designed to model graphs. It is defined by two graphs:</p>
+<ul class="simple">
+<li>the envelope <tt class="docutils literal"><span class="pre">G_E</span></tt> contains nodes/arcs that potentially figure in at least one solution,</li>
+<li>the kernel <tt class="docutils literal"><span class="pre">G_K</span></tt> contains nodes/arcs that figure in every solutions.</li>
+</ul>
+<p>Initially <tt class="docutils literal"><span class="pre">G_K</span></tt> is empty while <tt class="docutils literal"><span class="pre">G_E</span></tt> is set to an initial domain.
+Then, decisions and filtering algorithms will remove nodes or arcs from <tt class="docutils literal"><span class="pre">G_E</span></tt> and add some others to <tt class="docutils literal"><span class="pre">G_K</span></tt>.
+A graph variable <tt class="docutils literal"><span class="pre">GV=(G_E,G_K)</span></tt> is instantiated if`and only if <tt class="docutils literal"><span class="pre">G_E</span> <span class="pre">=</span> <span class="pre">G_K</span></tt>.</p>
+<p>We distinguish two kind of graphs, <tt class="docutils literal"><span class="pre">DirectedGraphVar</span></tt> and <tt class="docutils literal"><span class="pre">UndirectedGraphVar</span></tt>.
+Then for each kind, several data structures are available and can be found in enum <tt class="docutils literal"><span class="pre">GraphType</span></tt>.
+For instance <tt class="docutils literal"><span class="pre">MATRIX</span></tt> involves a bitset representation while <tt class="docutils literal"><span class="pre">LINKED_LIST</span></tt> involves linked lists and is much more appropriate for sparse graphs.</p>
+<p><strong>Reification graph</strong></p>
+<blockquote>
+<div><p>A graph variable <tt class="docutils literal"><span class="pre">GV=(G_E,G_K)</span></tt> can be used to model a matrix <tt class="docutils literal"><span class="pre">B</span></tt> of boolean variables.</p>
+<ul class="simple">
+<li>Each arc <tt class="docutils literal"><span class="pre">(x,y)</span></tt> corresponds to the boolean variable <tt class="docutils literal"><span class="pre">B[x][y]</span></tt>,</li>
+<li><tt class="docutils literal"><span class="pre">(x,y)</span></tt> not in <tt class="docutils literal"><span class="pre">G_E</span></tt> =&gt; <tt class="docutils literal"><span class="pre">B[x][y]</span></tt> is <tt class="docutils literal"><span class="pre">false`</span></tt>,</li>
+<li><tt class="docutils literal"><span class="pre">(x,y)</span></tt> in <tt class="docutils literal"><span class="pre">G_K</span></tt> =&gt; <tt class="docutils literal"><span class="pre">B[x][y]</span></tt> is <tt class="docutils literal"><span class="pre">true</span></tt>.</li>
+</ul>
+<p>This channeling is very easy to set:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">UndirectedGraphVar</span> <span class="n">GV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UndirectedGraphVar</span><span class="o">(</span><span class="n">B</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+<span class="c1">// create an empty default constraint</span>
+<span class="n">Constraint</span> <span class="n">c</span> <span class="o">=</span> <span class="n">ConstraintFactory</span><span class="o">.</span><span class="na">makeConstraint</span><span class="o">(</span><span class="n">solver</span><span class="o">);</span>
+<span class="c1">// channeling between B and GV</span>
+<span class="n">c</span><span class="o">.</span><span class="na">addPropagator</span><span class="o">(</span><span class="n">PropagatorFactory</span><span class="o">.</span><span class="na">graphBooleanChanneling</span><span class="o">(</span><span class="n">GV</span><span class="o">,</span><span class="n">B</span><span class="o">,</span><span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>Relation graph</strong></p>
+<blockquote>
+<div><p>A graph variable <tt class="docutils literal"><span class="pre">GV=(G_E,G_K)</span></tt> can be used to model a binary relation <tt class="docutils literal"><span class="pre">R</span></tt> between a set of variables <tt class="docutils literal"><span class="pre">V</span></tt>.</p>
+<ul class="simple">
+<li>Each node <tt class="docutils literal"><span class="pre">x</span></tt> represents the variable <tt class="docutils literal"><span class="pre">V[x]</span></tt>. If <tt class="docutils literal"><span class="pre">x</span></tt> is not in <tt class="docutils literal"><span class="pre">G_E</span></tt> then it is not concerned by the relation <tt class="docutils literal"><span class="pre">R</span></tt>.</li>
+<li>Each arc <tt class="docutils literal"><span class="pre">(x,y)</span></tt> of <tt class="docutils literal"><span class="pre">G_E</span></tt> represents the potential application of <tt class="docutils literal"><span class="pre">xRy</span></tt>.</li>
+<li>Each arc (x,y) not in G_E represents either x(!R)y, either nothing (depending of whether !R is defined or not, like reifications and half reifications).</li>
+<li>Each arc (x,y) of G_K implies the application of xRy.</li>
+</ul>
+<p>For instance the global constraint NValue(V,N) which ensures that variables in V take exactly N different values can be reformulated by:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// the meaning of an arc is the equivalence relation</span>
+<span class="n">GraphRelation</span> <span class="n">relation</span> <span class="o">=</span> <span class="n">GraphRelationFactory</span><span class="o">.</span><span class="na">equivalence</span><span class="o">(</span><span class="n">V</span><span class="o">);</span>
+<span class="n">UndirectedGraphVar</span> <span class="n">GV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UndirectedGraphVar</span><span class="o">(</span><span class="n">V</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+<span class="c1">// the graph GVmust contain Ncliques</span>
+<span class="n">Constraint</span> <span class="n">nValues</span> <span class="o">=</span> <span class="n">GraphConstraintFactory</span><span class="o">.</span><span class="na">nCliques</span><span class="o">(</span><span class="n">GV</span><span class="o">,</span><span class="n">N</span><span class="o">,</span><span class="n">solver</span><span class="o">);</span><span class="n">i</span>
+<span class="c1">// channeling between V and GV</span>
+<span class="n">nValues</span><span class="o">.</span><span class="na">addPropagator</span><span class="o">(</span><span class="n">PropagatorFactory</span><span class="o">.</span><span class="na">graphRelationChanneling</span><span class="o">(</span><span class="n">GV</span><span class="o">,</span><span class="n">V</span><span class="o">,</span><span class="n">R</span><span class="o">,</span><span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>The good thing is that such a model remains valid en case of vectorial variables (<tt class="docutils literal"><span class="pre">NVector</span></tt> constraint).</p>
+<p>Relation graphs can be seen as a kind of reification but they require only 1 graph variable and <span class="math">\(O(1)\)</span> propagators running in <span class="math">\(O(n^2)\)</span> time, whereas a reified approach would imply <span class="math">\(n^2\)</span> boolean variables and propagators. Moreover, relation graphs treat the problem globally through graph theory&#8217;s algorithms.</p>
+</div></blockquote>
+</div>
+<div class="section" id="real-variable">
+<h3>Real variable<a class="headerlink" href="#real-variable" title="Permalink to this headline">¶</a></h3>
+<p>Real variables have a specific status in Choco 3.2.
+Indeed, continuous variables and constraints are managed with <a class="reference external" href="http://www.emn.fr/z-info/ibex/">Ibex solver</a>.</p>
+<p>A real variable is declared with two doubles which defined its bound:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">RealVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">real</span><span class="o">(</span><span class="s">&quot;y&quot;</span><span class="o">,</span> <span class="mf">0.2</span><span class="o">,</span> <span class="mf">1.0e8</span><span class="o">,</span> <span class="n">precision</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+</pre></div>
+</div>
+<div class="highlight-java"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14</pre></div></td><td class="code"><div class="highlight"><pre>        <span class="n">solver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solver</span><span class="o">(</span><span class="s">&quot;Grocery&quot;</span><span class="o">);</span>
+        <span class="kt">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.000001d</span><span class="o">;</span>
+        <span class="c1">// 4 integer variables (price in cents)</span>
+        <span class="n">itemCost</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">boundedArray</span><span class="o">(</span><span class="s">&quot;item&quot;</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">711</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+        <span class="c1">// views as real variables to be used by Ibex</span>
+        <span class="n">realitemCost</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">real</span><span class="o">(</span><span class="n">itemCost</span><span class="o">,</span> <span class="n">epsilon</span><span class="o">);</span>
+
+		<span class="n">solver</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">RealConstraint</span><span class="o">(</span><span class="s">&quot;Sum&quot;</span><span class="o">,</span>		<span class="s">&quot;{0} + {1} + {2} + {3} = 711&quot;</span><span class="o">,</span> <span class="n">Ibex</span><span class="o">.</span><span class="na">COMPO</span><span class="o">,</span> <span class="n">realitemCost</span><span class="o">));</span>
+		<span class="n">solver</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">RealConstraint</span><span class="o">(</span><span class="s">&quot;Product&quot;</span><span class="o">,</span>	<span class="s">&quot;{0} * {1}/100 * {2}/100 * {3}/100 = 711&quot;</span><span class="o">,</span> <span class="n">Ibex</span><span class="o">.</span><span class="na">HC4</span><span class="o">,</span> <span class="n">realitemCost</span><span class="o">));</span>
+        <span class="c1">// symmetry breaking</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="k">new</span> <span class="n">RealConstraint</span><span class="o">(</span><span class="s">&quot;SymmetryBreaking&quot;</span><span class="o">,</span><span class="s">&quot;{0} &lt;= {1};{1} &lt;= {2};{2} &lt;= {3}&quot;</span><span class="o">,</span> <span class="n">Ibex</span><span class="o">.</span><span class="na">HC4</span><span class="o">,</span> <span class="n">realitemCost</span><span class="o">));</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">IntStrategyFactory</span><span class="o">.</span><span class="na">inputOrder_InDomainMax</span><span class="o">(</span><span class="n">itemCost</span><span class="o">));</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">findSolution</span><span class="o">();</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">getIbex</span><span class="o">().</span><span class="na">release</span><span class="o">();</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="posting-constraints">
+<h2>Posting constraints<a class="headerlink" href="#posting-constraints" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Modeling with Choco</a><ul>
+<li><a class="reference internal" href="#the-solver">The solver</a></li>
+<li><a class="reference internal" href="#declaring-variables">Declaring variables</a><ul>
+<li><a class="reference internal" href="#integer-variable">Integer variable</a><ul>
+<li><a class="reference internal" href="#bounded-variable">Bounded variable</a></li>
+<li><a class="reference internal" href="#enumerated-variable">Enumerated variable</a></li>
+<li><a class="reference internal" href="#boolean-variable">Boolean variable</a></li>
+<li><a class="reference internal" href="#variable-s-view">Variable&#8217;s view</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#set-variable">Set variable</a></li>
+<li><a class="reference internal" href="#graph-variable">Graph variable</a></li>
+<li><a class="reference internal" href="#real-variable">Real variable</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#posting-constraints">Posting constraints</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="1_overview.html"
+                        title="previous chapter">Preliminaries</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="3_solving.html"
+                        title="next chapter">Solving problems</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/2_modelling.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="3_solving.html" title="Solving problems"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="1_overview.html" title="Preliminaries"
+             >previous</a> |</li>
+        <li><a href="index.html">Choco3 3.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Charles Prud&#39;homme, Jean-Guillaume Fages.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

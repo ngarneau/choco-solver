@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Preliminaries &mdash; Choco3 3.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Choco3 3.2.0 documentation" href="index.html" />
+    <link rel="next" title="Modeling with Choco" href="2_modelling.html" />
+    <link rel="prev" title="Welcome to Choco3’s documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="2_modelling.html" title="Modeling with Choco"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Choco3’s documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Choco3 3.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="preliminaries">
+<h1>Preliminaries<a class="headerlink" href="#preliminaries" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installing-choco-version">
+<h2>Installing Choco 3.2<a class="headerlink" href="#installing-choco-version" title="Permalink to this headline">¶</a></h2>
+<p>Choco 3.2 is a java library based on <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">Java 7</a>.
+First of all, you need to be make sure that the right version of java is installed.</p>
+<div class="section" id="update-the-classpath">
+<h3>Update the classpath<a class="headerlink" href="#update-the-classpath" title="Permalink to this headline">¶</a></h3>
+<p>Simply add the jar file to the classpath of your project (in cli or in your favorite IDE).</p>
+<div class="highlight-bash"><div class="highlight"><pre>java -cp .:choco-X.y.z.jar my.project.Main
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">X.y.z</span></tt> is replaced by 3.2.0.</p>
+</div>
+<div class="section" id="which-jar-to-select">
+<h3>Which jar to select ?<a class="headerlink" href="#which-jar-to-select" title="Permalink to this headline">¶</a></h3>
+<p>We provide a zip file which contains the following files:</p>
+<dl class="docutils">
+<dt>apidocs-3.2.0.zip</dt>
+<dd>Javadoc of Choco-3.2.0</dd>
+<dt>choco-solver-3.1.1-jar-with-dependencies.jar</dt>
+<dd>An ready-to-use jar file which contains <cite>choco-environment</cite> and <cite>choco-solver</cite> artifacts and dependencies; it enable modeling and solving CP problems.</dd>
+<dt>choco-solver-3.2.0-sources.jar</dt>
+<dd>The source of the artifacts <cite>choco-environment</cite> and <cite>choco-solver</cite>.</dd>
+<dt>choco-parser-3.2.0.jar</dt>
+<dd>A jar file base on the artifact <cite>choco-parser</cite> without any dependency; it should be selected to input FlatZinc files.</dd>
+<dt>choco-parser-3.2.0-jar-with-dependencies.jar</dt>
+<dd>A ready-to-use jar file which contains the following artifacts: <cite>choco-environment</cite>, <cite>choco-solver</cite> and <cite>choco-parser</cite> and the required dependencies. <strong>This should be the default choice</strong>.</dd>
+<dt>choco-samples-3.2.0-sources.jar</dt>
+<dd>The source of the artifact <cite>choco-samples</cite> made of problems modeled with Choco.</dd>
+</dl>
+</div>
+<div class="section" id="as-a-maven-dependency">
+<h3>As a Maven Dependency<a class="headerlink" href="#as-a-maven-dependency" title="Permalink to this headline">¶</a></h3>
+<p>Choco is build and managed using <a class="reference external" href="http://maven.apache.org/download.cgi">Maven3</a>.
+To declare Choco as a dependency of your project, simply update the <tt class="docutils literal"><span class="pre">pom.xml</span></tt> of your project by adding the following instruction:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+     <span class="nt">&lt;groupId&gt;</span>choco<span class="nt">&lt;/groupId&gt;</span>
+     <span class="nt">&lt;artifactId&gt;</span>choco-solver<span class="nt">&lt;/artifactId&gt;</span>
+     <span class="nt">&lt;version&gt;</span>X.y.z<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">X.y.z</span></tt> is replaced by 3.2.0.</p>
+<p>You need to add a new repository to the list of declared ones in the <tt class="docutils literal"><span class="pre">pom.xml</span></tt> of your project:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;repository&gt;</span>
+  <span class="nt">&lt;id&gt;</span>choco.repos<span class="nt">&lt;/id&gt;</span>
+  <span class="nt">&lt;url&gt;</span>http://www.emn.fr/z-info/choco-repo/mvn/repository/<span class="nt">&lt;/url&gt;</span>
+<span class="nt">&lt;/repository&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="compiling-sources">
+<h3>Compiling sources<a class="headerlink" href="#compiling-sources" title="Permalink to this headline">¶</a></h3>
+<p>As a Maven-based project, Choco can be installed in a few instructions.
+First, run the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre>mvn install -DskipTests
+</pre></div>
+</div>
+<p>This instruction downloads the dependencies required for Choco3 (such as the <a class="reference external" href="http://trove.starlight-systems.com/">trove4j</a> and <a class="reference external" href="http://logback.qos.ch/">logback</a>) then compiles the sources. The instruction <tt class="docutils literal"><span class="pre">-DskipTests</span></tt> avoids running the tests after compilation (and saves you a couple of hours). Regression tests are run on a private continuous integration server.</p>
+<p>Maven provides commands to generate files needed for an IDE project setup.
+For example, to create the project files for your favorite IDE:</p>
+<dl class="docutils">
+<dt>IntelliJ Idea</dt>
+<dd><div class="first last highlight-bash"><div class="highlight"><pre>mvn idea:idea
+</pre></div>
+</div>
+</dd>
+<dt>Eclipse</dt>
+<dd><div class="first last highlight-bash"><div class="highlight"><pre>mvn eclipse:eclipse
+</pre></div>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="overview-of-choco-version">
+<h2>Overview of Choco 3.2<a class="headerlink" href="#overview-of-choco-version" title="Permalink to this headline">¶</a></h2>
+<p>The following steps should be enough to start using Choco 3.2.
+The minimal problem should at least contains a solver, some variables and constraints to linked them together.</p>
+<p>To facilitate the modeling, Choco 3.2 provides factories for almost every required component of CSP and its resolution:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Factory</strong></td>
+<td><strong>Description</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VariableFactory</span></tt></td>
+<td>to create any kind of variables and views (integer, boolean, set, graph and real)</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">IntConstraintFactory</span></tt>
+<tt class="docutils literal"><span class="pre">SetConstraintFactory</span></tt>
+<tt class="docutils literal"><span class="pre">GraphConstraintFactory</span></tt></td>
+<td>to declare constraints over variables</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">IntStrategyFactory</span></tt>
+<tt class="docutils literal"><span class="pre">SetStrategyFactory</span></tt>
+<tt class="docutils literal"><span class="pre">GraphStrategyFactory</span></tt></td>
+<td>to define a specific search strategy, which can be combined together with a StrategiesSequencer object</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SearchMonitorFactory</span></tt></td>
+<td>to enable logging resolution, setting limits and restart policies.</td>
+</tr>
+</tbody>
+</table>
+<p>Let say we want to model and solve the following equation: <span class="math">\(x + y &lt; 5\)</span>, where the <span class="math">\(x \in [\![0,5]\!]\)</span> and <span class="math">\(y \in [\![0,5]\!]\)</span>.
+Here is a short example which illustrates the main steps of a CSP modeling and resolution with Choco 3.2 to treat this equation.</p>
+<div class="highlight-java"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre>        <span class="c1">// 1. Create a Solver</span>
+        <span class="n">Solver</span> <span class="n">solver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solver</span><span class="o">(</span><span class="s">&quot;my first problem&quot;</span><span class="o">);</span>
+        <span class="c1">// 2. Create variables through the variable factory</span>
+        <span class="n">IntVar</span> <span class="n">x</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">bounded</span><span class="o">(</span><span class="s">&quot;X&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+        <span class="n">IntVar</span> <span class="n">y</span> <span class="o">=</span> <span class="n">VariableFactory</span><span class="o">.</span><span class="na">bounded</span><span class="o">(</span><span class="s">&quot;Y&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="n">solver</span><span class="o">);</span>
+        <span class="c1">// 3. Create and post constraints by using constraint factories</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">IntConstraintFactory</span><span class="o">.</span><span class="na">arithm</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="s">&quot;+&quot;</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="s">&quot;&lt;&quot;</span><span class="o">,</span> <span class="mi">5</span><span class="o">));</span>
+        <span class="c1">// 4. Define the search strategy</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">IntStrategyFactory</span><span class="o">.</span><span class="na">inputOrder_InDomainMin</span><span class="o">(</span><span class="k">new</span> <span class="n">IntVar</span><span class="o">[]{</span><span class="n">x</span><span class="o">,</span><span class="n">y</span><span class="o">}));</span>
+        <span class="c1">// 5. Launch the resolution process</span>
+        <span class="n">solver</span><span class="o">.</span><span class="na">findSolution</span><span class="o">();</span>
+</pre></div>
+</td></tr></table></div>
+<p>One may notice that there is no distinction between model objects and solver objects. This makes easier for beginners to model and solve problems (reduction of concepts and terms to know) and for developers to implement their own constraints and strategies (short cutting process).</p>
+<p>Don&#8217;t be afraid to take a look at the sources, we thought it is a good start point.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Preliminaries</a><ul>
+<li><a class="reference internal" href="#installing-choco-version">Installing Choco 3.2</a><ul>
+<li><a class="reference internal" href="#update-the-classpath">Update the classpath</a></li>
+<li><a class="reference internal" href="#which-jar-to-select">Which jar to select ?</a></li>
+<li><a class="reference internal" href="#as-a-maven-dependency">As a Maven Dependency</a></li>
+<li><a class="reference internal" href="#compiling-sources">Compiling sources</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#overview-of-choco-version">Overview of Choco 3.2</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Choco3&#8217;s documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="2_modelling.html"
+                        title="next chapter">Modeling with Choco</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/1_overview.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="2_modelling.html" title="Modeling with Choco"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Choco3’s documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">Choco3 3.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Charles Prud&#39;homme, Jean-Guillaume Fages.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview of Choco 3.2 &mdash; Choco3 3.2.0 documentation</title>
+    <title>The solver &mdash; Choco3 3.2.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -42,40 +42,17 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="overview-of-choco-version">
-<h1>Overview of Choco 3.2<a class="headerlink" href="#overview-of-choco-version" title="Permalink to this headline">¶</a></h1>
-<p>The following steps should be enough to start using Choco 3.2.
-The minimal problem should at least contains a solver, some variables and constraints to linked them together.</p>
-<p>To facilitate the modeling, Choco 3.2 provides factories for almost every required component of CSP and its resolution:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="21%" />
-<col width="79%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>Factory</strong></td>
-<td><strong>Description</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">VariableFactory</span></tt></td>
-<td>to create any kind of variables and views (integer, boolean, set, graph and real)</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">IntConstraintFactory</span></tt>
-<tt class="docutils literal"><span class="pre">SetConstraintFactory</span></tt>
-<tt class="docutils literal"><span class="pre">GraphConstraintFactory</span></tt></td>
-<td>to declare constraints over variables</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">IntStrategyFactory</span></tt>
-<tt class="docutils literal"><span class="pre">SetStrategyFactory</span></tt>
-<tt class="docutils literal"><span class="pre">GraphStrategyFactory</span></tt></td>
-<td>to define a specific search strategy, which can be combined together with a StrategiesSequencer object</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">SearchMonitorFactory</span></tt></td>
-<td>to enable logging resolution, setting limits and restart policies.</td>
-</tr>
-</tbody>
-</table>
-<p>Let say we want to model and solve the following equation: <span class="math">\(x + y &lt; 5\)</span>, where the <span class="math">\(x \in [\![0,5]\!]\)</span> and <span class="math">\(y \in [\![0,5]\!]\)</span>.
-Here is a short example which illustrates the main steps of a CSP modeling and resolution with Choco 3.2 to treat this equation.</p>
+  <div class="section" id="the-solver">
+<h1>The solver<a class="headerlink" href="#the-solver" title="Permalink to this headline">¶</a></h1>
+<p>The object <tt class="code docutils literal"><span class="pre">Solver</span></tt> is the key component. It is built as following:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">Solver</span> <span class="n">solver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solver</span><span class="o">();</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">Solver</span> <span class="n">solver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Solver</span><span class="o">(</span><span class="s">&quot;my problem&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>This should be the first instruction:</p>
 <div class="highlight-java"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -99,8 +76,6 @@ Here is a short example which illustrates the main steps of a CSP modeling and r
         <span class="n">solver</span><span class="o">.</span><span class="na">findSolution</span><span class="o">();</span>
 </pre></div>
 </td></tr></table></div>
-<p>One may notice that there is no distinction between model objects and solver objects. This makes easier for beginners to model and solve problems (reduction of concepts and terms to know) and for developers to implement their own constraints and strategies (short cutting process).</p>
-<p>Don&#8217;t be afraid to take a look at the sources, we thought it is a good start point.</p>
 </div>
 
 
@@ -111,7 +86,7 @@ Here is a short example which illustrates the main steps of a CSP modeling and r
         <div class="sphinxsidebarwrapper">
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../_sources/1_overview/12_overview.txt"
+    <li><a href="../_sources/2_modelling/21_solver.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
