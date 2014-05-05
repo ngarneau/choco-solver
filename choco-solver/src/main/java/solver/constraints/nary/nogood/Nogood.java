@@ -45,150 +45,96 @@ import util.ESat;
  */
 public class Nogood implements INogood {
 
-    final IntVar[] vars;
-    final int[] wl;
-    final int nbvars;
-    final int[] values;
-    int idxInStore;
+	private final static int NOT_FOUND = -1;
+	private final static int ENTAILED = -2;
 
+	final IntVar[] vars;
+	final int[] values;
+	int idx1, idx2;
 
-    public Nogood(IntVar[] vars, int[] values) {
-        this.values = values;
-        this.vars = vars;
-        this.nbvars = vars.length;
-        this.wl = new int[Math.max(nbvars, 2)];
-        for (int i = 0; i < nbvars; i++) {
-            wl[i] = i;
-        }
-    }
+	public Nogood(IntVar[] vars, int[] values) {
+		this.values = values;
+		this.vars = vars;
+		assert values.length==vars.length;
+	}
 
-    public void setIdx(int idx) {
-        this.idxInStore = idx;
-    }
+	public boolean propagate(PropNogoodStore pngs) throws ContradictionException {
+		if(idx1==ENTAILED || idx2==ENTAILED){
+			return false;
+		}
+		if(idx1 == NOT_FOUND || vars[idx1].isInstantiated()){
+			idx1 = computeNot(idx2);
+		}
+		if(idx2 == NOT_FOUND || vars[idx2].isInstantiated()){
+			idx2 = computeNot(idx1);
+		}
+		if(idx1==ENTAILED || idx2==ENTAILED){
+			return false;
+		}
+		if(idx1==NOT_FOUND || idx2==NOT_FOUND){
+			if(idx1==idx2){
+				pngs.contradiction(vars[0],"");
+			}else{
+				int tmp = Math.max(idx1,idx2);
+				return vars[tmp].removeValue(values[tmp],pngs);
+			}
+		}
+		return false;
+	}
 
-    public int getIdx() {
-        return this.idxInStore;
-    }
+	private int computeNot(int not){
+		for (int i = 0; i < vars.length; i++) {
+			if (vars[i].contains(values[i])) {
+				if (i!=not && !vars[i].isInstantiated()) {
+					return i;
+				}
+			} else {
+				return ENTAILED;
+			}
+		}
+		return NOT_FOUND;
+	}
 
-    public boolean findLiteral(int start) {
-        for (int i = start; i < nbvars; i++) {
-            int k = wl[i];
-            if (vars[k].contains(values[k])) {
-                if (!vars[k].isInstantiated()) {
-                    int lwl = wl[start];
-                    wl[start] = wl[i];
-                    wl[i] = lwl;
-                    break;
-                }
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
+	@Override
+	public boolean isUnit() {
+		return false;
+	}
 
-    public int propagate(PropNogoodStore pngs) throws ContradictionException {
-        if (!findLiteral(0)) {
-//            pngs.silent(this);
-            return -1;
-        }
-        if (vars[wl[0]].isInstantiatedTo(values[wl[0]])) {
-            pngs.contradiction(null, "Inconsistent");
-        }
-        findLiteral(1);
-        if (vars[wl[1]].isInstantiatedTo(values[wl[1]])) {
-            int k = wl[0];
-            if (vars[k].removeValue(values[k], pngs)) {
-                return vars[k].isInstantiated() ? k : -1;
-            }
-            pngs.watch(vars[k], this, k);
-        } else {
-            pngs.watch(vars[wl[0]], this, wl[0]);
-            pngs.watch(vars[wl[1]], this, wl[1]);
-        }
-        return -1;
-    }
+	public ESat isEntailed() {
+		int c = 0;
+		for (int i = 0; i < vars.length; i++) {
+			if (vars[i].contains(values[i])) {
+				if (vars[i].isInstantiated()) {
+					c++;
+				}
+			} else {
+				return ESat.TRUE;
+			}
+		}
+		return c == vars.length ? ESat.FALSE : ESat.UNDEFINED;
+	}
 
-    public int awakeOnInst(int idx, PropNogoodStore pngs) throws ContradictionException {
-        assert vars[idx].isInstantiated();
-        if (!vars[idx].contains(values[idx])) {
-//            pngs.silent(this);
-            return -1;
-        }
-        if (wl[0] == idx) {
-            wl[0] = wl[1];
-            wl[1] = idx;
-        }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < vars.length; i++) {
+			sb.append(vars[i].getName()).append("==").append(values[i]).append(',');
+		}
+		return sb.toString();
+	}
 
-        if (!vars[wl[0]].contains(values[wl[0]])) {
-//            pngs.silent(this);
-            return -1;
-        }
+	@Override
+	public int size() {
+		return vars.length;
+	}
 
-        int k;
-        for (int i = 2; i < wl.length; i++) {
-            k = wl[i];
-            if (vars[k].contains(values[k])) {
-                if (!vars[k].isInstantiated()) {
-                    wl[1] = wl[i];
-                    wl[i] = idx;
-                    pngs.unwatch(vars[idx], this);
-                    pngs.watch(vars[wl[1]], this, wl[1]);
-                    return -99;
-                }
-            } else {
-//                pngs.silent(this);
-                return -1;
-            }
-        }
-        // unit nogood
-        if (vars[wl[0]].removeValue(values[wl[0]], pngs)) {
-//            pngs.silent(this);
-            return vars[wl[0]].isInstantiated() ? wl[0] : -1;
-        }
-        return -1;
-    }
+	@Override
+	public IntVar getVar(int i) {
+		return vars[i];
+	}
 
-    @Override
-    public boolean isUnit() {
-        return false;
-    }
-
-    public ESat isEntailed() {
-        int c = 0;
-        for (int i = 0; i < vars.length; i++) {
-            if (vars[i].contains(values[i])) {
-                if (vars[i].isInstantiated()) {
-                    c++;
-                }
-            } else {
-                return ESat.TRUE;
-            }
-        }
-        return c == vars.length ? ESat.FALSE : ESat.UNDEFINED;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < nbvars; i++) {
-            sb.append(vars[i].getName()).append("==").append(values[i]).append(',');
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public int size() {
-        return vars.length;
-    }
-
-    @Override
-    public IntVar getVar(int i) {
-        return vars[i];
-    }
-
-    @Override
-    public int getVal(int i) {
-        return values[i];
-    }
+	@Override
+	public int getVal(int i) {
+		return values[i];
+	}
 }

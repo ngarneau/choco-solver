@@ -49,13 +49,13 @@ public interface INogood {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Nogood.class);
 
-    void setIdx(int idx);
-
-    int getIdx();
-
-    int propagate(PropNogoodStore pngs) throws ContradictionException;
-
-    int awakeOnInst(int idx, PropNogoodStore pngs) throws ContradictionException;
+	/**
+	 * Filter the good
+	 * @param pngs
+	 * @return		true iff filtering has occurred
+	 * @throws ContradictionException
+	 */
+    boolean propagate(PropNogoodStore pngs) throws ContradictionException;
 
     boolean isUnit();
 

@@ -26,9 +26,6 @@
  */
 package solver.constraints.nary.nogood;
 
-import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntObjectHashMap;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
@@ -36,7 +33,6 @@ import solver.explanations.Deduction;
 import solver.explanations.Explanation;
 import solver.explanations.ValueRemoval;
 import solver.explanations.VariableState;
-import solver.propagation.queues.CircularQueue;
 import solver.variables.EventType;
 import solver.variables.IntVar;
 import util.ESat;
@@ -55,78 +51,58 @@ import java.util.List;
  */
 public class PropNogoodStore extends Propagator<IntVar> {
 
-    List<INogood> units;
-    List<INogood> allnogoods;
-    TIntObjectHashMap<TIntList> vars2nogood;
-    TIntObjectHashMap<TIntList> vars2idxinng;
-    CircularQueue<IntVar> hasChanged;
+	List<INogood> units;
+	List<INogood> nounits;
 
-    public PropNogoodStore(IntVar[] vars) {
-        super(vars, PropagatorPriority.VERY_SLOW, true);
-        vars2nogood = new TIntObjectHashMap<TIntList>();
-        vars2idxinng = new TIntObjectHashMap<TIntList>();
-        allnogoods = new ArrayList<INogood>();
-        units = new ArrayList<INogood>();
-        hasChanged = new CircularQueue<IntVar>(8);
-    }
+	public PropNogoodStore(IntVar[] vars) {
+		super(vars, PropagatorPriority.VERY_SLOW, false);
+		nounits = new ArrayList<INogood>();
+		units = new ArrayList<INogood>();
+	}
 
-    @Override
-    public boolean advise(int idxVarInProp, int mask) {
-        return super.advise(idxVarInProp, mask) && vars2nogood.get(vars[idxVarInProp].getId()) != null;
-    }
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		return EventType.INSTANTIATE.mask;
+	}
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-        return EventType.INSTANTIATE.mask;
-    }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		unitPropagation();
+		boolean again = false;
+		for(INogood ng:nounits){
+			again |= ng.propagate(this);
+		}
+		if(again){
+			propagate(0);
+		}
+	}
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        for (INogood ng : allnogoods) {
-            ng.propagate(this);
-        }
-    }
+	public void unitPropagation() throws ContradictionException {
+		boolean again = false;
+		for (INogood ng : units) {
+			again |= (ng.propagate(this) && !ng.getVar(0).hasEnumeratedDomain());
+		}
+		if(again) {
+			unitPropagation();
+		}
+	}
 
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        hasChanged.clear();
-        hasChanged.addLast(vars[idxVarInProp]);
-        while (!hasChanged.isEmpty()) {
-            IntVar var = hasChanged.pollFirst();
-            TIntList nogoods = vars2nogood.get(var.getId());
-            TIntList indices = vars2idxinng.get(var.getId());
-            for (int i = 0; i < nogoods.size(); i++) {
-                INogood ng = allnogoods.get(nogoods.get(i));
-                int idx = ng.awakeOnInst(indices.get(i), this);
-                if (idx > -1) {
-                    hasChanged.addLast(ng.getVar(idx));
-                } else if (idx == -99) { // a call to unwatch has been done!
-                    i--;
-                } else {
-                    assert ng.isEntailed() != ESat.FALSE;
-                }
-            }
-        }
-    }
-
-
-    public void unitPropagation() throws ContradictionException {
-        for (INogood ng : units) {
-            ng.propagate(this);
-        }
-    }
-
-
-    @Override
-    public ESat isEntailed() {
-        for (INogood ng : allnogoods) {
-            ESat sat = ng.isEntailed();
-            if (!sat.equals(ESat.TRUE)) {
-                return sat;
-            }
-        }
-        return ESat.TRUE;
-    }
+	@Override
+	public ESat isEntailed() {
+		for (INogood ng : units) {
+			ESat sat = ng.isEntailed();
+			if (!sat.equals(ESat.TRUE)) {
+				return sat;
+			}
+		}
+		for (INogood ng : nounits) {
+			ESat sat = ng.isEntailed();
+			if (!sat.equals(ESat.TRUE)) {
+				return sat;
+			}
+		}
+		return ESat.TRUE;
+	}
 
     @Override
     public void explain(Deduction d, Explanation e) {
@@ -136,81 +112,35 @@ public class PropNogoodStore extends Propagator<IntVar> {
             ValueRemoval vr = (ValueRemoval) d;
             IntVar var = (IntVar) vr.getVar();
             int val = vr.getVal();
-            TIntList nogoods = vars2nogood.get(var.getId());
-            TIntList indices = vars2idxinng.get(var.getId());
-            for (int i = 0; i < nogoods.size(); i++) {
-                INogood ng = allnogoods.get(nogoods.get(i));
-                int idx = indices.get(i);
-                if (val == ng.getVal(idx)) {
-                    for (int j = 0; j < ng.size(); j++) {
-                        if (ng.getVar(j) != var) {
-//                            ng.getVar(j).explain(VariableState.REM, ng.getVal(j), e);
-                            ng.getVar(j).explain(VariableState.DOM, e);
-                        }
-                    }
-                }
-            }
-        } else {
-            super.explain(d, e);
-        }
-    }
+			for(INogood ng:nounits){
+				boolean concerned = false;
+				for(int i=0;i<ng.size() && !concerned;i++) {
+					if (var == ng.getVar(i) && val == ng.getVal(i)) {
+						concerned = true;
+					}
+				}
+				if(concerned) {
+					for (int i = 0; i < ng.size(); i++) {
+						if (var != ng.getVar(i)) {
+							ng.getVar(i).explain(VariableState.DOM, e);
+						}
+					}
+				}
+			}
+		} else {
+			super.explain(d, e);
+		}
+	}
 
-    ///*****************************************************************************************************************
-    ///  DEDICATED TO NOGOOD RECORDING *********************************************************************************
-    ///*****************************************************************************************************************
+	///*****************************************************************************************************************
+	///  DEDICATED TO NOGOOD RECORDING *********************************************************************************
+	///*****************************************************************************************************************
 
-    public void addNogood(INogood ng) throws ContradictionException {
-        if (ng.isUnit()) {
-            units.add(ng);
-        }
-        int ngidx = allnogoods.size();
-        allnogoods.add(ng);
-        ng.setIdx(ngidx);
-        hasChanged.clear();
-        int idx = ng.propagate(this);
-        if (idx > -1) {
-            hasChanged.addLast(ng.getVar(idx));
-        }
-        while (!hasChanged.isEmpty()) {
-            IntVar var = hasChanged.pollFirst();
-            TIntList nogoods = vars2nogood.get(var.getId());
-            TIntList indices = vars2idxinng.get(var.getId());
-            for (int i = 0; i < nogoods.size(); i++) {
-                ng = allnogoods.get(nogoods.get(i));
-                idx = ng.awakeOnInst(indices.get(i), this);
-                if (idx > -1) {
-                    hasChanged.addLast(ng.getVar(idx));
-                } else {
-                    assert ng.isEntailed() != ESat.FALSE;
-                }
-            }
-        }
-    }
-
-    public void watch(IntVar var, Nogood ng, int idxInNG) {
-        TIntList nogoods = vars2nogood.get(var.getId());
-        if (nogoods == null) {
-            nogoods = new TIntArrayList();
-            vars2nogood.put(var.getId(), nogoods);
-        }
-        nogoods.add(ng.getIdx());
-        TIntList indices = vars2idxinng.get(var.getId());
-        if (indices == null) {
-            indices = new TIntArrayList();
-            vars2idxinng.put(var.getId(), indices);
-        }
-        indices.add(idxInNG);
-    }
-
-    public void unwatch(IntVar var, Nogood ng) {
-        TIntList nogoods = vars2nogood.get(var.getId());
-        if (nogoods != null) {
-            int ni = nogoods.indexOf(ng.getIdx());
-            if (ni > -1) {
-                nogoods.removeAt(ni);
-                TIntList indices = vars2idxinng.get(var.getId());
-                indices.removeAt(ni);
-            }
-        }
-    }
+	public void addNogood(INogood ng) throws ContradictionException {
+		if (ng.isUnit()) {
+			units.add(ng);
+		}else{
+			nounits.add(ng);
+		}
+	}
 }

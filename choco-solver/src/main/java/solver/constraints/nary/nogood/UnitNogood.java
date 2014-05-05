@@ -47,7 +47,6 @@ public class UnitNogood implements INogood {
 
     final IntVar var;
     final int value;
-    int idxInStore;
 
 
     public UnitNogood(IntVar var, int value) {
@@ -55,22 +54,8 @@ public class UnitNogood implements INogood {
         this.var = var;
     }
 
-    public void setIdx(int idx) {
-        this.idxInStore = idx;
-    }
-
-    public int getIdx() {
-        return this.idxInStore;
-    }
-
-    public int propagate(PropNogoodStore pngs) throws ContradictionException {
-        var.removeValue(value, pngs);
-        return -1;
-    }
-
-    public int awakeOnInst(int idx, PropNogoodStore pngs) throws ContradictionException {
-        var.removeValue(value, pngs);
-        return -1;
+    public boolean propagate(PropNogoodStore pngs) throws ContradictionException {
+        return var.removeValue(value, pngs);
     }
 
     @Override
