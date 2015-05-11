@@ -126,7 +126,7 @@
                             <doctitle>${project.groupId}-${project.artifactId} ${project.version} API</doctitle>
                             <windowtitle>${project.groupId}-${project.artifactId} ${project.version} API</windowtitle>
                             <!--<quiet />-->
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <!--<additionalparam>-Xdoclint:none</additionalparam>-->
                         </configuration>
                         <executions>
                             <execution>
