@@ -1,22 +1,23 @@
 /**
- * Copyright (c) 2014,
- *       Charles Prud'homme (TASC, INRIA Rennes, LINA CNRS UMR 6241),
- *       Jean-Guillaume Fages (COSLING S.A.S.).
+ * Copyright (c) 2015, Ecole des Mines de Nantes
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the <organization> nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *    This product includes software developed by the <organization>.
+ * 4. Neither the name of the <organization> nor the
+ *    names of its contributors may be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
  * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -44,7 +45,7 @@ import java.io.Serializable;
  */
 public abstract class Settings implements Serializable {
 
-    public enum Idem {
+    enum Idem {
         disabled, // does not anything
         error, // print an error message when a propagator is not guaranteed to be idempotent -- fir debug only
         force // extra call to Propagator.propagate(FULL_PROPAGATION) when no more event is available
@@ -54,7 +55,7 @@ public abstract class Settings implements Serializable {
      * Return the welcome message
      */
     public String getWelcomeMessage() {
-        return "** Choco 3.3.1 (2015-05) : Constraint Programming Solver, Copyleft (c) 2010-2015";
+        return "** Choco 3.3.2 (2015-11) : Constraint Programming Solver, Copyleft (c) 2010-2015";
     }
 
     /**
@@ -153,5 +154,51 @@ public abstract class Settings implements Serializable {
      */
     public ICondition getEnvironmentHistorySimulationCondition(){
         return new Except_0();
+    }
+
+    /**
+     * Return true if one wants to be informed of warnings detected during modeling/solving (default value is false)
+     */
+    public boolean warnUser() {
+        return false;
+    }
+
+    /**
+     * When this setting returns true, a complete trace of the events is output.
+     * This can be quite big, though, and it slows down the overall process.
+     *
+     * Note that this parameter is read once at propagation engine creation and set in a final variable.
+     * Note that enabling colors may be helpful (see {@link #outputWithANSIColors()})
+     * @return true if all events are output in the console
+     */
+    public boolean debugPropagation(){
+        return false;
+    }
+
+    /**
+     * Return true if the incrementality is enabled on boolean sum, based on the number of variables involved.
+     * Default condition is : nbvars > 10
+     * @param nbvars number of variables in the constraint
+     */
+    public boolean enableIncrementalityOnBoolSum(int nbvars) {
+        return nbvars > 10;
+    }
+
+    /**
+     * If your terminal support ANSI colors (Windows terminals don't), you can set this to true.
+     * @return enable output with colors
+     */
+    public boolean outputWithANSIColors(){
+        return false;
+    }
+
+    /**
+     * If this setting is set to true (default value), a clone of the input variable array is made in any propagator constructors.
+     * This prevents, for instance, wrong behavior when permutations occurred on the input array (e.g., sorting variables).
+     * Setting this to false may limit the memory consumption during modelling.
+     * @return true if all propagators should clone the input variable array instead of simply referencing it.
+     */
+    public boolean cloneVariableArrayInPropagator(){
+        return true;
     }
 }
