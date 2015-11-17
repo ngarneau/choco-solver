@@ -43,6 +43,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * <br/>
@@ -89,7 +90,12 @@ public class PropEngineTest {
         });
         IntVar[] vars = VF.enumeratedArray("V", 3, 0, 4, solver);
         solver.post(ICF.alldifferent(vars));
-        Arrays.sort(vars, (o1, o2) -> o2.getId() - o1.getId());
+        Arrays.sort(vars, new Comparator<IntVar>() {
+            @Override
+            public int compare(IntVar o1, IntVar o2) {
+                return o2.getId() - o1.getId();
+            }
+        });
 
         solver.propagate();
         vars[0].instantiateTo(0, Cause.Null);

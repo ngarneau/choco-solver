@@ -98,9 +98,8 @@ public class PropIntersection extends Propagator<SetVar> {
                 if (mate == -1) {
                     PropIntersection.this.contradiction(vars[k], "");
                 } else if (mate != -2) {
-                    vars[mate].removeFromEnvelope(element, aCause);
+                    vars[mate].removeFromEnvelope(element, PropIntersection.this);
                 }
-<<<<<<< HEAD
             }
         };
         setForced = new IntProcedure() {
@@ -109,7 +108,7 @@ public class PropIntersection extends Propagator<SetVar> {
                 boolean allKer = true;
                 for (int i = 0; i < k; i++) {
                     if (!vars[i].envelopeContains(element)) {
-                        vars[k].removeFromEnvelope(element, aCause);
+                        vars[k].removeFromEnvelope(element, PropIntersection.this);
                         allKer = false;
                         break;
                     } else if (!vars[i].kernelContains(element)) {
@@ -117,40 +116,16 @@ public class PropIntersection extends Propagator<SetVar> {
                     }
                 }
                 if (allKer) {
-                    vars[k].addToKernel(element, aCause);
+                    vars[k].addToKernel(element, PropIntersection.this);
                 }
             }
         };
         setRemoved = new IntProcedure() {
             @Override
             public void execute(int element) throws ContradictionException {
-                vars[k].removeFromEnvelope(element, aCause);
+                vars[k].removeFromEnvelope(element, PropIntersection.this);
             }
         };
-=======
-            if (mate == -1) {
-                contradiction(vars[k], "");
-            } else if (mate != -2) {
-                vars[mate].removeFromEnvelope(element, this);
-            }
-        };
-        setForced = element -> {
-            boolean allKer = true;
-            for (int i = 0; i < k; i++) {
-                if (!vars[i].envelopeContains(element)) {
-                    vars[k].removeFromEnvelope(element, this);
-                    allKer = false;
-                    break;
-                } else if (!vars[i].kernelContains(element)) {
-                    allKer = false;
-                }
-            }
-            if (allKer) {
-                vars[k].addToKernel(element, this);
-            }
-        };
-        setRemoved = element -> vars[k].removeFromEnvelope(element, this);
->>>>>>> master
     }
 
     //***********************************************************************************

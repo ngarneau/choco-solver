@@ -221,8 +221,18 @@ public class Chatterbox {
                 printVersion(solver);
                 printFeatures(solver);
             }
+
+            @Override
+            public void afterInitialize() {
+
+            }
         });
         solver.plugMonitor(new IMonitorClose() {
+            @Override
+            public void beforeClose() {
+
+            }
+
             @Override
             public void afterClose() {
                 out.println(solver.getMeasures().toString());
@@ -242,6 +252,11 @@ public class Chatterbox {
             @Override
             public void beforeClose() {
                 out.println(solver.getMeasures().toOneShortLineString());
+            }
+
+            @Override
+            public void afterClose() {
+
             }
         });
     }

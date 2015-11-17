@@ -209,6 +209,11 @@ public class LearnDBT extends LearnCBJ {
         }
 
         @Override
+        public void beforeInitialize() {
+
+        }
+
+        @Override
         public void afterInitialize() {
             this.mainStrategy = mSolver.getStrategy();
             // put this strategy before any other ones.

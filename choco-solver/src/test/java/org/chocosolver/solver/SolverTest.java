@@ -257,7 +257,7 @@ public class SolverTest {
             solvers.add(knapsack());
         }
         SMF.prepareForParallelResolution(solvers);
-        solvers.parallelStream().forEach(Solver::findSolution);
+//        solvers.parallelStream().forEach(Solver::findSolution);
     }
 
     @Test(groups = "1s")
@@ -268,7 +268,7 @@ public class SolverTest {
             solvers.add(knapsack());
         }
         SMF.prepareForParallelResolution(solvers);
-        solvers.parallelStream().forEach(s -> s.findOptimalSolution(ResolutionPolicy.MAXIMIZE));
+//        solvers.parallelStream().forEach(s -> s.findOptimalSolution(ResolutionPolicy.MAXIMIZE));
     }
 
     @Test(groups="1s")

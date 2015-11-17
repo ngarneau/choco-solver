@@ -41,8 +41,8 @@ package org.chocosolver.solver.search.loop.monitors;
 public interface IMonitorInitPropagation extends ISearchMonitor {
 
     @Deprecated
-    default void beforeInitialPropagation(){}
+    void beforeInitialPropagation();
 
     @Deprecated
-    default void afterInitialPropagation(){}
+    void afterInitialPropagation();
 }

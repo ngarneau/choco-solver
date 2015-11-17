@@ -94,7 +94,7 @@ public enum NoPropagationEngine implements IPropagationEngine {
         }
 
         @Override
-        public void onVariableUpdate(Variable variable, IEventType type, ICause cause) throws ContradictionException {
+        public void onVariableUpdate(Variable variable, IEventType type, ICause cause){
 
         }
 

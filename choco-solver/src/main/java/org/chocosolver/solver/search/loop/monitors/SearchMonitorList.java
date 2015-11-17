@@ -91,6 +91,26 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
     }
 
     @Override
+    public void beforeDownLeftBranch() {
+
+    }
+
+    @Override
+    public void afterDownLeftBranch() {
+
+    }
+
+    @Override
+    public void beforeDownRightBranch() {
+
+    }
+
+    @Override
+    public void afterDownRightBranch() {
+
+    }
+
+    @Override
     public void beforeDownBranch(boolean left) {
         for (int i = 0; i < mdbra.size(); i++) {
             mdbra.get(i).beforeDownBranch(left);
@@ -270,4 +290,13 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
         mubra.clear();
     }
 
+    @Override
+    public void beforeInitialPropagation() {
+
+    }
+
+    @Override
+    public void afterInitialPropagation() {
+
+    }
 }

@@ -358,36 +358,57 @@ public class SearchMonitorFactory {
      *
      * @param solvers a list of {@code Solver}
      */
-    public static void prepareForParallelResolution(List<Solver> solvers) {
+    public static void prepareForParallelResolution(final List<Solver> solvers) {
         if (solvers.get(0).getObjectives() != null &&
                 solvers.get(0).getObjectives().length == 1) {
             // share the best known bound
-            solvers.stream().forEach(s -> s.plugMonitor(
-                    (IMonitorSolution) () -> {
-                        switch (s.getObjectiveManager().getPolicy()) {
-                            case MAXIMIZE:
-                                int lb = s.getObjectiveManager().getBestSolutionValue().intValue();
-                                solvers.forEach(s1 -> s1.getSearchLoop().getObjectiveManager().updateBestLB(lb));
-                                break;
-                            case MINIMIZE:
-                                int ub = s.getObjectiveManager().getBestSolutionValue().intValue();
-                                solvers.forEach(s1 -> s1.getSearchLoop().getObjectiveManager().updateBestUB(ub));
-                                break;
+            for (final Solver s : solvers) {
+                s.plugMonitor(
+                        (IMonitorSolution) new IMonitorSolution() {
+                            @Override
+                            public void onSolution() {
+                                switch (s.getObjectiveManager().getPolicy()) {
+                                    case MAXIMIZE:
+                                        int lb = s.getObjectiveManager().getBestSolutionValue().intValue();
+                                        for (Solver s1 : solvers) {
+                                            s1.getSearchLoop().getObjectiveManager().updateBestLB(lb);
+                                        }
+                                        break;
+                                    case MINIMIZE:
+                                        int ub = s.getObjectiveManager().getBestSolutionValue().intValue();
+                                        for (Solver s1 : solvers) {
+                                            s1.getSearchLoop().getObjectiveManager().updateBestUB(ub);
+                                        }
+                                        break;
+                                }
+                            }
                         }
-                    }
-            ));
-        }
-        AtomicInteger finishers = new AtomicInteger(0);
-        solvers.stream().forEach(s -> s.addStopCriterion(()->finishers.get()>0));
-        solvers.stream().forEach(s -> s.plugMonitor(new IMonitorClose() {
-            @Override
-            public void afterClose() {
-                int count = finishers.addAndGet(1);
-                if(count == solvers.size()){
-                    finishers.set(0); //reset the counter to 0
-                }
+                );
             }
-        }));
+        }
+        final AtomicInteger finishers = new AtomicInteger(0);
+        for (Solver s : solvers) {
+            s.addStopCriterion(new Criterion() {
+                @Override
+                public boolean isMet() {
+                    return finishers.get() > 0;
+                }
+            });
+            s.plugMonitor(new IMonitorClose() {
+                @Override
+                public void beforeClose() {
+
+                }
+
+                @Override
+                public void afterClose() {
+                    int count = finishers.addAndGet(1);
+                    if (count == solvers.size()) {
+                        finishers.set(0); //reset the counter to 0
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -395,7 +416,7 @@ public class SearchMonitorFactory {
      * This requires to have installed the library and to start it before launching the resolution.
      * @param aSolver solver to visualize
      */
-    public static void connectocpprofiler(Solver aSolver){
+    public static void connectocpprofiler(Solver aSolver) {
         aSolver.plugMonitor(new CPProfiler(aSolver));
     }
 

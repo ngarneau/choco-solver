@@ -37,11 +37,13 @@ import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.exception.SolverException;
+import org.chocosolver.solver.explanations.RuleStore;
 import org.chocosolver.solver.trace.Chatterbox;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.RealVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.events.IEventType;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -262,5 +264,10 @@ public class Solution implements Serializable, ICause {
 
     public boolean hasBeenFound() {
         return !empty;
+    }
+
+    @Override
+    public boolean why(RuleStore ruleStore, IntVar var, IEventType evt, int value) {
+        return false;
     }
 }

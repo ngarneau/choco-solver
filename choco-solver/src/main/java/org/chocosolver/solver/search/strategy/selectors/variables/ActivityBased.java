@@ -35,9 +35,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.explanations.RuleStore;
-import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
 import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.loop.Move;
 import org.chocosolver.solver.search.loop.MoveRestart;
@@ -323,6 +321,10 @@ public class ActivityBased extends AbstractStrategy<IntVar> implements IMonitorD
     @Override
     public void onUpdate(IntVar var, IEventType evt) {
         affected.set(v2i.get(var.getId()));
+    }
+
+    @Override
+    public void duplicate(Solver solver, THashMap<Object, Object> identitymap) {
     }
 
     @Override

@@ -79,6 +79,11 @@ public class NogoodFromRestarts implements IMonitorRestart {
         extractNogoodFromPath();
     }
 
+    @Override
+    public void afterRestart() {
+
+    }
+
     private void extractNogoodFromPath() {
         int d = (int) png.getSolver().getMeasures().getNodeCount();
         Decision<IntVar> decision = png.getSolver().getSearchLoop().getLastDecision();

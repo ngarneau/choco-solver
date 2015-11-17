@@ -38,7 +38,7 @@ package org.chocosolver.solver.search.loop.monitors;
  */
 public interface IMonitorRestart extends ISearchMonitor {
 
-    default void beforeRestart(){}
+    void beforeRestart();
 
-    default void afterRestart(){}
+    void afterRestart();
 }

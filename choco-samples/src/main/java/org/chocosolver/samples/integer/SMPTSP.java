@@ -112,7 +112,7 @@ public class SMPTSP extends AbstractProblem {
 		solver.plugMonitor(new IMonitorInitialize() {
 			@Override
 			public void beforeInitialize() {
-				
+
 			}
 
 			@Override

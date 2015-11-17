@@ -36,7 +36,6 @@
 
 package org.chocosolver.solver.constraints.set;
 
-import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -79,12 +78,11 @@ public class PropAllEqual extends Propagator<SetVar> {
         for (int i = 0; i < n; i++) {
             sdm[i] = this.vars[i].monitorDelta(this);
         }
-        ICause p =this;
         elementForced = new IntProcedure() {
             @Override
             public void execute(int element) throws ContradictionException {
                 for (int i = 0; i < n; i++) {
-                    vars[i].addToKernel(element, p);
+                    vars[i].addToKernel(element, PropAllEqual.this);
                 }
             }
         };
@@ -92,7 +90,7 @@ public class PropAllEqual extends Propagator<SetVar> {
             @Override
             public void execute(int element) throws ContradictionException {
                 for (int i = 0; i < n; i++) {
-                    vars[i].removeFromEnvelope(element, p);
+                    vars[i].removeFromEnvelope(element, PropAllEqual.this);
                 }
             }
         };

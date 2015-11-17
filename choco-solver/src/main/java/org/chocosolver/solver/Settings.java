@@ -45,7 +45,7 @@ import java.io.Serializable;
  */
 public abstract class Settings implements Serializable {
 
-    enum Idem {
+    public enum Idem {
         disabled, // does not anything
         error, // print an error message when a propagator is not guaranteed to be idempotent -- fir debug only
         force // extra call to Propagator.propagate(FULL_PROPAGATION) when no more event is available

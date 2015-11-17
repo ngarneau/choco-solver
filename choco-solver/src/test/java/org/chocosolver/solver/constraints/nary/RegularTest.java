@@ -38,6 +38,7 @@ import org.chocosolver.solver.search.solution.Solution;
 import org.chocosolver.solver.search.strategy.ISF;
 import org.chocosolver.solver.search.strategy.IntStrategyFactory;
 import org.chocosolver.solver.trace.Chatterbox;
+import org.chocosolver.solver.trace.IMessage;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 import org.chocosolver.solver.variables.VariableFactory;
@@ -306,14 +307,17 @@ public class RegularTest {
     @Test(groups = "1s")
     public void testregExp7() {
         Solver solver = new Solver();
-        IntVar[] CS = VF.enumeratedArray("CS", 10, 0, 2, solver);
+        final IntVar[] CS = VF.enumeratedArray("CS", 10, 0, 2, solver);
         solver.post(ICF.regular(CS, new FiniteAutomaton("0*(1{2,4}0{0,2}0)*0*")));
-        Chatterbox.showSolutions(solver, () -> {
-            for (int i = 0; i < 10; i++) {
-                System.out.printf("%d", CS[i].getValue());
-            }
+        Chatterbox.showSolutions(solver, new IMessage() {
+            @Override
+            public String print() {
+                for (int i = 0; i < 10; i++) {
+                    System.out.printf("%d", CS[i].getValue());
+                }
 //            System.out.printf("\n");
-            return "";
+                return "";
+            }
         });
         solver.set(ISF.lexico_LB(CS));
 //        Chatterbox.showDecisions(solver);

@@ -38,7 +38,7 @@ package org.chocosolver.solver.search.loop.monitors;
  */
 public interface IMonitorUpBranch extends ISearchMonitor {
 
-    default void beforeUpBranch(){}
+    void beforeUpBranch();
 
-    default void afterUpBranch(){}
+    void afterUpBranch();
 }

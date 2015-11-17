@@ -36,7 +36,6 @@
 
 package org.chocosolver.solver.constraints.set;
 
-import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -89,17 +88,16 @@ public class PropBoolChannel extends Propagator<Variable> {
         this.sdm = this.set.monitorDelta(this);
         this.offSet = offSet;
         // PROCEDURES
-        ICause p =this;
         setForced = new IntProcedure() {
             @Override
             public void execute(int element) throws ContradictionException {
-                bools[element - offSet].setToTrue(p);
+                bools[element - offSet].setToTrue(PropBoolChannel.this);
             }
         };
         setRemoved = new IntProcedure() {
             @Override
             public void execute(int element) throws ContradictionException {
-                bools[element - offSet].setToFalse(p);
+                bools[element - offSet].setToFalse(PropBoolChannel.this);
             }
         };
     }

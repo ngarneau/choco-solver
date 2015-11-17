@@ -29,7 +29,6 @@
  */
 package org.chocosolver.solver.constraints.set;
 
-import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -64,12 +63,11 @@ public class PropNotMemberSetInt extends Propagator<SetVar> {
         super(new SetVar[]{setVar}, PropagatorPriority.UNARY, true);
         this.iv = intVar;
         this.sv = setVar;
-        ICause p =this;
-        this.sdm = sv.monitorDelta(p);
+        this.sdm = sv.monitorDelta(this);
         this.elemRem = new IntProcedure() {
             @Override
             public void execute(int i) throws ContradictionException {
-                iv.removeValue(i, p);
+                iv.removeValue(i, PropNotMemberSetInt.this);
             }
         };
 	}

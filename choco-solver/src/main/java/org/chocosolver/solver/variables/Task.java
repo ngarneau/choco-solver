@@ -36,6 +36,8 @@
 
 package org.chocosolver.solver.variables;
 
+import gnu.trove.map.hash.THashMap;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.exception.SolverException;
 import org.chocosolver.solver.explanations.RuleStore;
@@ -153,6 +155,11 @@ public class Task {
         }
 
         @Override
+        public void duplicate(Solver solver, THashMap<Object, Object> identitymap) {
+
+        }
+
+        @Override
         public boolean why(RuleStore ruleStore, IntVar var, IEventType evt, int value) {
             boolean nrules = false;
             if (var == S) {
@@ -212,6 +219,11 @@ public class Task {
             E.updateBounds(S.getLB() + D.getLB(), S.getUB() + D.getUB(), this);
             // duration
             D.updateBounds(E.getLB() - S.getUB(), E.getUB() - S.getLB(), this);
+        }
+
+        @Override
+        public void duplicate(Solver solver, THashMap<Object, Object> identitymap) {
+
         }
 
         @Override

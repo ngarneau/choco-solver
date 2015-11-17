@@ -62,7 +62,7 @@ public final class PropEqualX_YC extends Propagator<IntVar> {
     private int offSet;
 
     @SuppressWarnings({"unchecked"})
-    public PropEqualX_YC(IntVar[] vars, int c) {
+    public PropEqualX_YC(final IntVar[] vars, int c) {
         super(vars, PropagatorPriority.BINARY, true);
         this.x = vars[0];
         this.y = vars[1];
@@ -72,7 +72,12 @@ public final class PropEqualX_YC extends Propagator<IntVar> {
             idms = new IIntDeltaMonitor[2];
             idms[0] = vars[0].monitorDelta(this);
             idms[1] = vars[1].monitorDelta(this);
-            rem_proc = i -> vars[indexToFilter].removeValue(i + offSet, this);
+            rem_proc = new IntProcedure() {
+                @Override
+                public void execute(int i) throws ContradictionException {
+                    vars[indexToFilter].removeValue(i + offSet, PropEqualX_YC.this);
+                }
+            };
         }
     }
 

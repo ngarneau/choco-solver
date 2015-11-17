@@ -98,6 +98,11 @@ public class CPProfiler implements IMonitorInitialize, IMonitorDownBranch, IMoni
     }
 
     @Override
+    public void beforeInitialize() {
+
+    }
+
+    @Override
     public void afterInitialize() {
         if (DEBUG) System.out.printf(
                 "connector.restart(%d);\n",
@@ -107,6 +112,26 @@ public class CPProfiler implements IMonitorInitialize, IMonitorDownBranch, IMoni
         alt_stack.push(-1); // -1 is alt for the root node
         pid_stack.push(-1); // -1 is pid for the root node
         last_stack.push(-1);
+    }
+
+    @Override
+    public void beforeDownLeftBranch() {
+
+    }
+
+    @Override
+    public void afterDownLeftBranch() {
+
+    }
+
+    @Override
+    public void beforeDownRightBranch() {
+
+    }
+
+    @Override
+    public void afterDownRightBranch() {
+
     }
 
     @Override
@@ -130,12 +155,22 @@ public class CPProfiler implements IMonitorInitialize, IMonitorDownBranch, IMoni
     }
 
     @Override
+    public void afterDownBranch(boolean left) {
+
+    }
+
+    @Override
     public void beforeUpBranch() {
         last = last_stack.pop();
         while(pid_stack.peek() != last){
             pid_stack.pop();
         }
         pid_stack.pop();
+    }
+
+    @Override
+    public void afterUpBranch() {
+
     }
 
     @Override
@@ -148,6 +183,11 @@ public class CPProfiler implements IMonitorInitialize, IMonitorDownBranch, IMoni
     public void onContradiction(ContradictionException cex) {
         String dec = pretty(mSolver.getSearchLoop().getLastDecision());
         send(nc, pid_stack.peek(), alt_stack.pop(), 0, rid, Connector.NodeStatus.FAILED, dec, cex.toString());
+    }
+
+    @Override
+    public void beforeRestart() {
+
     }
 
     @Override
@@ -175,6 +215,11 @@ public class CPProfiler implements IMonitorInitialize, IMonitorDownBranch, IMoni
                 .setLabel(label)
                 .setInfo(info)
                 .send();
+    }
+
+    @Override
+    public void beforeClose() {
+
     }
 
     @Override

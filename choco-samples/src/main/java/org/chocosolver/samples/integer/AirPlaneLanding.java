@@ -184,7 +184,12 @@ public class AirPlaneLanding extends AbstractProblem {
 
     @Override
     public void configureSearch() {
-        Arrays.sort(planes, (o1, o2) -> maxCost.get(o2) - maxCost.get(o1));
+        Arrays.sort(planes, new Comparator<IntVar>() {
+            @Override
+            public int compare(IntVar o1, IntVar o2) {
+                return maxCost.get(o2) - maxCost.get(o1);
+            }
+        });
         solver.set(
                 IntStrategyFactory.random_bound(bVars, seed),
                 IntStrategyFactory.lexico_LB(planes)

@@ -164,17 +164,23 @@ public class DeltaTest {
         public void propagate(int idxVarInProp, int mask) throws ContradictionException {
             if (idxVarInProp == 0) {
                 iD.freeze();
-                iD.forEachRemVal((IntProcedure) x -> {
-                    if (i.contains(x)) {
-                        Assert.fail();
+                iD.forEachRemVal((IntProcedure) new IntProcedure() {
+                    @Override
+                    public void execute(int x) throws ContradictionException {
+                        if (i.contains(x)) {
+                            Assert.fail();
+                        }
                     }
                 });
                 iD.unfreeze();
             } else {
                 jD.freeze();
-                jD.forEachRemVal((IntProcedure) x -> {
-                    if (j.contains(x)) {
-                        Assert.fail();
+                jD.forEachRemVal((IntProcedure) new IntProcedure() {
+                    @Override
+                    public void execute(int x) throws ContradictionException {
+                        if (j.contains(x)) {
+                            Assert.fail();
+                        }
                     }
                 });
                 jD.unfreeze();

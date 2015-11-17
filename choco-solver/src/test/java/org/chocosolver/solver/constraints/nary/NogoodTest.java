@@ -31,11 +31,7 @@ package org.chocosolver.solver.constraints.nary;
 
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.limits.BacktrackCounter;
-<<<<<<< HEAD
-import org.chocosolver.solver.search.limits.ICounterAction;
-=======
 import org.chocosolver.solver.search.loop.SLF;
->>>>>>> master
 import org.chocosolver.solver.search.loop.monitors.SMF;
 import org.chocosolver.solver.search.restart.MonotonicRestartStrategy;
 import org.chocosolver.solver.search.strategy.ISF;

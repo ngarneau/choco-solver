@@ -38,7 +38,7 @@ package org.chocosolver.solver.search.loop.monitors;
  */
 public interface IMonitorClose extends ISearchMonitor {
 
-    default void beforeClose(){}
+    void beforeClose();
 
-    default void afterClose(){}
+    void afterClose();
 }

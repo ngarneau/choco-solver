@@ -42,40 +42,28 @@ public interface IMonitorDownBranch extends ISearchMonitor {
      * @deprecated replaced by {@link #beforeDownBranch(boolean)}
      */
     @Deprecated
-    default void beforeDownLeftBranch(){}
+    void beforeDownLeftBranch();
 
     /**
      * @deprecated replaced by {@link #afterDownBranch(boolean)}
      */
     @Deprecated
-    default void afterDownLeftBranch(){}
+    void afterDownLeftBranch();
 
     /**
      * @deprecated replaced by {@link #beforeDownBranch(boolean)}
      */
     @Deprecated
-    default void beforeDownRightBranch(){}
+    void beforeDownRightBranch();
 
     /**
      * @deprecated replaced by {@link #afterDownBranch(boolean)}
      */
     @Deprecated
-    default void afterDownRightBranch(){}
+    void afterDownRightBranch();
 
-    default void beforeDownBranch(boolean left){
-        if(left){
-            beforeDownLeftBranch();
-        }else{
-            beforeDownRightBranch();
-        }
-    }
+    void beforeDownBranch(boolean left);
 
-    default void afterDownBranch(boolean left){
-        if(left){
-            afterDownLeftBranch();
-        }else{
-            afterDownRightBranch();
-        }
-    }
+    void afterDownBranch(boolean left);
 
 }

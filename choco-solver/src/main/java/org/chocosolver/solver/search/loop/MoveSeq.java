@@ -32,10 +32,13 @@ package org.chocosolver.solver.search.loop;
 import org.chocosolver.memory.IStateInt;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.explanations.RuleStore;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.search.strategy.strategy.StrategiesSequencer;
+import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.solver.variables.events.IEventType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -171,6 +174,11 @@ public class MoveSeq implements Move {
         @Override
         public String toString() {
             return "Transition";
+        }
+
+        @Override
+        public boolean why(RuleStore ruleStore, IntVar var, IEventType evt, int value) {
+            return false;
         }
     }
 }

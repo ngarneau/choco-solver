@@ -38,8 +38,8 @@ package org.chocosolver.solver.search.loop.monitors;
  */
 public interface IMonitorOpenNode extends ISearchMonitor {
 
-    default void beforeOpenNode(){}
+    void beforeOpenNode();
 
-    default void afterOpenNode(){}
+    void afterOpenNode();
 
 }

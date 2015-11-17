@@ -58,43 +58,58 @@ public final class PropKeysorting extends Propagator<IntVar> {
     boolean prune;
 
     protected final ArraySort sorter;
-    private final IntComparator sortmincomp1 = (i, j) -> {
-        int z = 0;
-        while (z <= k && XLB[i][z] == XLB[j][z]) {
-            z++;
-        }
-        return z <= k ? XLB[i][z] - XLB[j][z] : 0;
-    };
-
-    private final IntComparator sortmincomp2 = (i, j) -> {
-        if (SCC[XMATE[i]] != SCC[XMATE[j]]) {
-            return SCC[XMATE[i]] - SCC[XMATE[j]];
-        } else {
-            return 0;
+    private final IntComparator sortmincomp1 = new IntComparator() {
+        @Override
+        public int compare(int i, int j) {
+            int z = 0;
+            while (z <= k && XLB[i][z] == XLB[j][z]) {
+                z++;
+            }
+            return z <= k ? XLB[i][z] - XLB[j][z] : 0;
         }
     };
 
-    private final IntComparator sortmaxcomp1 = (i, j) -> {
-        int z = 0;
-        while (z <= k && XUB[i][z] == XUB[j][z]) {
-            z++;
-        }
-        return z <= k ? XUB[i][z] - XUB[j][z] : 0;
-    };
-
-    private final IntComparator sortmaxcomp2 = (i, j) -> {
-        if (SCC[XMATE[i]] != SCC[XMATE[j]]) {
-            return SCC[XMATE[i]] - SCC[XMATE[j]];
-        } else {
-            return 0;
+    private final IntComparator sortmincomp2 = new IntComparator() {
+        @Override
+        public int compare(int i, int j) {
+            if (SCC[XMATE[i]] != SCC[XMATE[j]]) {
+                return SCC[XMATE[i]] - SCC[XMATE[j]];
+            } else {
+                return 0;
+            }
         }
     };
 
-    private final IntComparator sortycomp = (i, j) -> {
-        if (SCC[i] != SCC[j]) {
-            return SCC[i] - SCC[j];
-        } else {
-            return i - j;
+    private final IntComparator sortmaxcomp1 = new IntComparator() {
+        @Override
+        public int compare(int i, int j) {
+            int z = 0;
+            while (z <= k && XUB[i][z] == XUB[j][z]) {
+                z++;
+            }
+            return z <= k ? XUB[i][z] - XUB[j][z] : 0;
+        }
+    };
+
+    private final IntComparator sortmaxcomp2 = new IntComparator() {
+        @Override
+        public int compare(int i, int j) {
+            if (SCC[XMATE[i]] != SCC[XMATE[j]]) {
+                return SCC[XMATE[i]] - SCC[XMATE[j]];
+            } else {
+                return 0;
+            }
+        }
+    };
+
+    private final IntComparator sortycomp = new IntComparator() {
+        @Override
+        public int compare(int i, int j) {
+            if (SCC[i] != SCC[j]) {
+                return SCC[i] - SCC[j];
+            } else {
+                return i - j;
+            }
         }
     };
 

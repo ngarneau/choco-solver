@@ -30,8 +30,10 @@
 package org.chocosolver.solver.search.strategy.decision;
 
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.explanations.RuleStore;
 import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.events.IEventType;
 
 /**
  * A decision made of multiple instantiation.
@@ -160,5 +162,10 @@ public class IntMetaDecision extends Decision<IntVar[]> {
         int[] valBigger = new int[newCapacity];
         System.arraycopy(val, 0, valBigger, 0, oldCapacity);
         val = valBigger;
+    }
+
+    @Override
+    public boolean why(RuleStore ruleStore, IntVar var, IEventType evt, int value) {
+        return false;
     }
 }

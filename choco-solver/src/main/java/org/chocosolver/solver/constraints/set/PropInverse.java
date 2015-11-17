@@ -36,6 +36,7 @@
 
 package org.chocosolver.solver.constraints.set;
 
+import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -87,8 +88,19 @@ public class PropInverse extends Propagator<SetVar> {
         for (int i = 0; i < n + n2; i++) {
             sdm[i] = this.vars[i].monitorDelta(this);
         }
-        elementForced = element -> toFilter[element - offSet].addToKernel(idx, this);
-        elementRemoved = element -> toFilter[element - offSet].removeFromEnvelope(idx, this);
+        final ICause p =this;
+        elementForced = new IntProcedure() {
+            @Override
+            public void execute(int element) throws ContradictionException {
+                toFilter[element - offSet].addToKernel(idx, p);
+            }
+        };
+        elementRemoved = new IntProcedure() {
+            @Override
+            public void execute(int element) throws ContradictionException {
+                toFilter[element - offSet].removeFromEnvelope(idx, p);
+            }
+        };
     }
 
     //***********************************************************************************

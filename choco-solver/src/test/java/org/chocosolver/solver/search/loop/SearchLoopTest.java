@@ -43,6 +43,8 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 import org.chocosolver.solver.variables.VariableFactory;
+import org.chocosolver.util.criteria.Criterion;
+import org.chocosolver.util.criteria.LongCriterion;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -185,11 +187,16 @@ public class SearchLoopTest {
 
     @Test(groups = "1s")
     public void test4() {
-        Solver solver = new Solver();
+        final Solver solver = new Solver();
         queen(solver, 8);
         dfs(solver, ISF.lexico_LB(solver.retrieveIntVars()));
         restart(solver,
-                limit -> solver.getMeasures().getNodeCount() >= limit,
+                new LongCriterion() {
+                    @Override
+                    public boolean isMet(long value) {
+                        return solver.getMeasures().getNodeCount() >= value;
+                    }
+                },
                 new LubyRestartStrategy(2, 2), 2);
         solver.findAllSolutions();
         Chatterbox.printShortStatistics(solver);
@@ -198,12 +205,18 @@ public class SearchLoopTest {
 
     @Test(groups = "1s")
     public void test5() {
-        Solver solver = new Solver();
+        final Solver solver = new Solver();
         golomb(solver, 5);
         dfs(solver, ISF.lexico_LB(solver.retrieveIntVars()));
         lns(solver, new RandomNeighborhood(solver, solver.retrieveIntVars(), 15, 0),
                 new NodeCounter(solver, 10));
-        SMF.limitSearch(solver, () -> solver.getMeasures().getNodeCount() >= 1000);
+        SMF.limitSearch(solver,
+                new Criterion() {
+                    @Override
+                    public boolean isMet() {
+                        return solver.getMeasures().getNodeCount() >= 1000;
+                    }
+                });
         solver.findOptimalSolution(ResolutionPolicy.MINIMIZE);
         Chatterbox.printShortStatistics(solver);
         Assert.assertEquals(solver.getMeasures().getRestartCount(), 314);
@@ -211,12 +224,17 @@ public class SearchLoopTest {
 
     @Test(groups = "1s")
     public void test6() {
-        Solver solver = new Solver();
+        final Solver solver = new Solver();
         golomb(solver, 6);
         dfs(solver, ISF.lexico_LB(solver.retrieveIntVars()));
         lns(solver, new RandomNeighborhood(solver, solver.retrieveIntVars(), 15, 0),
                 new NodeCounter(solver, 10));
-        solver.addStopCriterion(() -> solver.getMeasures().getNodeCount() >= 1000);
+        solver.addStopCriterion(new Criterion() {
+            @Override
+            public boolean isMet() {
+                return solver.getMeasures().getNodeCount() >= 1000;
+            }
+        });
         solver.findOptimalSolution(ResolutionPolicy.MINIMIZE);
         Chatterbox.printShortStatistics(solver);
         Assert.assertEquals(solver.getMeasures().getRestartCount(), 972);
