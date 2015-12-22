@@ -38,32 +38,17 @@ package org.chocosolver.solver.search.loop.monitors;
  */
 public interface IMonitorDownBranch extends ISearchMonitor {
 
-    /**
-     * @deprecated replaced by {@link #beforeDownBranch(boolean)}
-     */
-    @Deprecated
-    void beforeDownLeftBranch();
 
     /**
-     * @deprecated replaced by {@link #afterDownBranch(boolean)}
+     * Action to perform <u>before</u> going down in the tree search
+     * @param left set to <tt>true</tt> to specify that this is a left branch
      */
-    @Deprecated
-    void afterDownLeftBranch();
-
-    /**
-     * @deprecated replaced by {@link #beforeDownBranch(boolean)}
-     */
-    @Deprecated
-    void beforeDownRightBranch();
-
-    /**
-     * @deprecated replaced by {@link #afterDownBranch(boolean)}
-     */
-    @Deprecated
-    void afterDownRightBranch();
-
     void beforeDownBranch(boolean left);
 
+    /**
+     * Action to perform <u>after</u> going down in the tree search
+     * @param left set to <tt>true</tt> to specify that this is a left branch
+     */
     void afterDownBranch(boolean left);
 
 }

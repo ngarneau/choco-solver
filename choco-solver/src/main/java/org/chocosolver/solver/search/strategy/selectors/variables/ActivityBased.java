@@ -328,26 +328,6 @@ public class ActivityBased extends AbstractStrategy<IntVar> implements IMonitorD
     }
 
     @Override
-    public void beforeDownLeftBranch() {
-        affected.clear();
-    }
-
-    @Override
-    public void afterDownLeftBranch() {
-
-    }
-
-    @Override
-    public void beforeDownRightBranch() {
-
-    }
-
-    @Override
-    public void afterDownRightBranch() {
-
-    }
-
-    @Override
     public void beforeDownBranch(boolean left) {
         if (left) {
             affected.clear();

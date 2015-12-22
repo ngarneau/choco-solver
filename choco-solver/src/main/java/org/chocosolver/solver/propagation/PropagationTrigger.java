@@ -39,6 +39,8 @@ import org.chocosolver.util.objects.IntList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * A specific propagation engine for initial propagation and dynamic addition of propagators during the resolution.
@@ -80,6 +82,14 @@ public class PropagationTrigger implements Serializable {
         assert perm_propagators.size() == perm_world.size();
         sta_propagators.addAll(Arrays.asList(propagators));
         size += propagators.length;
+        if(solver.getSettings().sortPropagatorActivationWRTPriority()) {
+            Collections.sort(sta_propagators, new Comparator<Propagator>() {
+                @Override
+                public int compare(Propagator p1, Propagator p2) {
+                    return p1.getPriority().priority - p2.getPriority().priority;
+                }
+            });
+        }
     }
 
     public void dynAdd(Propagator propagator, boolean permanent) {

@@ -288,26 +288,6 @@ public class ImpactBased extends AbstractStrategy<IntVar> implements IMonitorDow
 
 
     @Override
-    public void beforeDownLeftBranch() {
-
-    }
-
-    @Override
-    public void afterDownLeftBranch() {
-
-    }
-
-    @Override
-    public void beforeDownRightBranch() {
-
-    }
-
-    @Override
-    public void afterDownRightBranch() {
-
-    }
-
-    @Override
     public void beforeDownBranch(boolean left) {
     }
 

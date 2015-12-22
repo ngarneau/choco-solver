@@ -301,26 +301,6 @@ public class Chatterbox {
     public static void showDecisions(final Solver solver, final IMessage message) {
         solver.plugMonitor(new IMonitorDownBranch() {
             @Override
-            public void beforeDownLeftBranch() {
-
-            }
-
-            @Override
-            public void afterDownLeftBranch() {
-
-            }
-
-            @Override
-            public void beforeDownRightBranch() {
-
-            }
-
-            @Override
-            public void afterDownRightBranch() {
-
-            }
-
-            @Override
             public void beforeDownBranch(boolean left) {
                 Decision d = solver.getSearchLoop().getLastDecision();
                 out.printf("%s[%d/%d] %s%s ", pad("", solver.getEnvironment().getWorldIndex(), "."),

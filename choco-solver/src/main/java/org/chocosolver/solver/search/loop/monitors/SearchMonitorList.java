@@ -41,17 +41,47 @@ import java.util.List;
  * @since 09/05/11
  */
 public final class SearchMonitorList implements IMonitorClose, IMonitorContradiction, IMonitorDownBranch,
-        IMonitorInitialize, IMonitorInitPropagation, IMonitorInterruption, IMonitorOpenNode, IMonitorRestart,
+        IMonitorInitialize, IMonitorOpenNode, IMonitorRestart,
         IMonitorSolution, IMonitorUpBranch {
 
+    /**
+     * Close monitors
+     */
     List<IMonitorClose> mclos = new ArrayList<>();
+
+    /**
+     * Contradiction monitors
+     */
     List<IMonitorContradiction> mcont = new ArrayList<>();
+
+    /**
+     * Down branch monitors
+     */
     List<IMonitorDownBranch> mdbra = new ArrayList<>();
+
+    /**
+     * Initialize monitors
+     */
     List<IMonitorInitialize> minit = new ArrayList<>();
-    List<IMonitorInterruption> minte = new ArrayList<>();
+
+    /**
+     * Open node monitors
+     */
     List<IMonitorOpenNode> mopno = new ArrayList<>();
+
+    /**
+     * Restart monitors
+     */
     List<IMonitorRestart> mrest = new ArrayList<>();
+
+    /**
+     * Solution monitors
+     */
     List<IMonitorSolution> msolu = new ArrayList<>();
+
+    /**
+     * Up branch monitors
+     */
     List<IMonitorUpBranch> mubra = new ArrayList<>();
 
 
@@ -88,26 +118,6 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
         for (int i = 0; i < msolu.size(); i++) {
             msolu.get(i).onSolution();
         }
-    }
-
-    @Override
-    public void beforeDownLeftBranch() {
-
-    }
-
-    @Override
-    public void afterDownLeftBranch() {
-
-    }
-
-    @Override
-    public void beforeDownRightBranch() {
-
-    }
-
-    @Override
-    public void afterDownRightBranch() {
-
     }
 
     @Override
@@ -160,13 +170,6 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
     }
 
     @Override
-    public void afterInterrupt() {
-        for (int i = 0; i < minte.size(); i++) {
-            minte.get(i).afterInterrupt();
-        }
-    }
-
-    @Override
     public void beforeClose() {
         for (int i = 0; i < mclos.size(); i++) {
             mclos.get(i).beforeClose();
@@ -180,6 +183,10 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
         }
     }
 
+    /**
+     * Adds a search monitor to this list
+     * @param sm a search monitor
+     */
     public void add(ISearchMonitor sm) {
         if (sm != null) {
             if (sm instanceof IMonitorClose) {
@@ -193,9 +200,6 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
             }
             if (sm instanceof IMonitorInitialize) {
                 minit.add((IMonitorInitialize) sm);
-            }
-            if (sm instanceof IMonitorInterruption) {
-                minte.add((IMonitorInterruption) sm);
             }
             if (sm instanceof IMonitorOpenNode) {
                 mopno.add((IMonitorOpenNode) sm);
@@ -212,6 +216,11 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
         }
     }
 
+    /**
+     * Checks if this list contains a search monitor.
+     * @param sm a search monitor
+     * @return <tt>true</tt> if this list contains <code>sm</code>, <tt>false</tt> otherwise.
+     */
     public boolean contains(ISearchMonitor sm) {
         boolean isPluggedIn = false;
         if (sm != null) {
@@ -226,9 +235,6 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
             }
             if (sm instanceof IMonitorInitialize) {
                 isPluggedIn = minit.contains(sm);
-            }
-            if (sm instanceof IMonitorInterruption) {
-                isPluggedIn = minte.contains(sm);
             }
             if (sm instanceof IMonitorOpenNode) {
                 isPluggedIn = mopno.contains(sm);
@@ -246,6 +252,10 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
         return isPluggedIn;
     }
 
+    /**
+     * Removes a search monitor for this list.
+     * @param sm a search monitor.
+     */
     public void remove(ISearchMonitor sm) {
         if (sm != null) {
             if (sm instanceof IMonitorClose) {
@@ -259,9 +269,6 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
             }
             if (sm instanceof IMonitorInitialize) {
                 minit.remove(sm);
-            }
-            if (sm instanceof IMonitorInterruption) {
-                minte.remove(sm);
             }
             if (sm instanceof IMonitorOpenNode) {
                 mopno.remove(sm);
@@ -278,25 +285,17 @@ public final class SearchMonitorList implements IMonitorClose, IMonitorContradic
         }
     }
 
+    /**
+     * Clears all internal lists of search monitors.
+     */
     public void reset() {
         mclos.clear();
         mcont.clear();
         mdbra.clear();
         minit.clear();
-        minte.clear();
         mopno.clear();
         mrest.clear();
         msolu.clear();
         mubra.clear();
-    }
-
-    @Override
-    public void beforeInitialPropagation() {
-
-    }
-
-    @Override
-    public void afterInitialPropagation() {
-
     }
 }

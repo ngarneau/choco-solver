@@ -115,26 +115,6 @@ public class CPProfiler implements IMonitorInitialize, IMonitorDownBranch, IMoni
     }
 
     @Override
-    public void beforeDownLeftBranch() {
-
-    }
-
-    @Override
-    public void afterDownLeftBranch() {
-
-    }
-
-    @Override
-    public void beforeDownRightBranch() {
-
-    }
-
-    @Override
-    public void afterDownRightBranch() {
-
-    }
-
-    @Override
     public void beforeDownBranch(boolean left) {
         if (left) {
             Decision dec = mSolver.getSearchLoop().getLastDecision();
