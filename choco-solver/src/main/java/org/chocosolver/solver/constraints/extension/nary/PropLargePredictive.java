@@ -33,11 +33,17 @@ import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.events.PropagatorEventType;
 import org.chocosolver.solver.variables.ranges.IntIterableBitSet;
 import org.chocosolver.solver.variables.ranges.IntIterableSet;
 import org.chocosolver.util.ESat;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * <br/>
@@ -47,40 +53,100 @@ import org.chocosolver.util.ESat;
  */
 public class PropLargePredictive extends Propagator<IntVar> {
 
-    protected Propagator<IntVar> currentPropagator;
+    private boolean generateData = false;
+    protected String currentPropagator;
+    protected HashMap<String, PredictivePropagator> propagators = new HashMap<>(3);
 
-    public PropLargePredictive(IntVar[] vars, Tuples tuples) {
+    private PropLargePredictive(IntVar[] vars) {
         super(vars, PropagatorPriority.QUADRATIC, true);
-        this.currentPropagator = new PropTableStr2(vars, tuples.toMatrix());
     }
 
     public PropLargePredictive(IntVar[] vars, Tuples tuples, PropLargeFactory propagatorFactory) {
-        super(vars, PropagatorPriority.QUADRATIC, true);
-        this.currentPropagator = propagatorFactory.getStr2(vars, tuples);
+        this(vars);
+        this.propagators.put("STR2+", propagatorFactory.getStr2(vars, tuples));
+        this.propagators.put("FC", propagatorFactory.getFC(vars, tuples));
+        this.propagators.put("GAC2001", propagatorFactory.getGAC2001(vars, tuples));
+        this.currentPropagator = "STR2+";
     }
 
-    public void setCurrentPropagator(Propagator<IntVar> propagator) {
-        this.currentPropagator = propagator;
+    public void setGenerateData(boolean flag) {
+        this.generateData = flag;
+    }
+
+    public void setCurrentPropagator(String index) {
+        this.currentPropagator = index;
+    }
+
+    public void setStr2Propagator(PredictivePropagator propagator) {
+        this.propagators.put("STR2+", propagator);
+    }
+
+    public void setFCPropagator(PredictivePropagator propagator) {
+        this.propagators.put("FC", propagator);
+    }
+
+    public void setGAC2001Propagator(PredictivePropagator propagator) {
+        this.propagators.put("GAC2001", propagator);
     }
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        this.currentPropagator.propagate(evtmask);
+        if(this.generateData) {
+            this.generateData(evtmask);
+        }
+        else {
+            this.propagators.get(this.currentPropagator).propagate(evtmask);
+        }
     }
 
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        this.currentPropagator.propagate(idxVarInProp, mask);
+        if(this.generateData) {
+            this.generateData(idxVarInProp, mask);
+        }
+        else {
+            this.propagators.get(this.currentPropagator).propagate(idxVarInProp, mask);
+        }
     }
 
     @Override
     public ESat isEntailed() {
-        return this.currentPropagator.isEntailed();
+        return this.propagators.get(this.currentPropagator).isEntailed();
     }
 
     @Override
     public String toString() {
-        return this.currentPropagator.toString();
+        return this.propagators.get(this.currentPropagator).toString();
+    }
+
+    private void generateData(int evtmask) throws ContradictionException{
+        Iterator it = this.propagators.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            PredictivePropagator propagator = (PredictivePropagator) pair.getValue();
+            propagator.propagate(evtmask);
+            it.remove();
+        }
+    }
+
+    private void generateData(int idxVarInProp, int mask) throws ContradictionException{
+        Iterator it = this.propagators.entrySet().iterator();
+        IMeasures measures = solver.getMeasures();
+        int numHolesInDomains = solver.getNumHolesInIntVarsDomains();
+        long currentDepth = measures.getCurrentDepth();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            PredictivePropagator propagator = (PredictivePropagator) pair.getValue();
+            int domainArityBefore = propagator.getVariablesDomainsArity();
+            long startTime = System.nanoTime();
+            propagator.propagate(idxVarInProp, mask);
+            long endTime = System.nanoTime();
+            int domainArityAfter = propagator.getVariablesDomainsArity();
+            long duration = (endTime - startTime);
+            // double score = (domainArityAfter / domainArityBefore + 1) / Math.log(duration);
+            propagator.getSolver();
+            it.remove();
+        }
     }
 
 }

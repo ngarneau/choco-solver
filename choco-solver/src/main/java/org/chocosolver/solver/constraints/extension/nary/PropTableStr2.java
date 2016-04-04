@@ -51,7 +51,7 @@ import java.util.TreeMap;
  * @author Guillaume Perez, Jean-Guillaume Fages (minor)
  * @since 26/07/2014
  */
-public class PropTableStr2 extends Propagator<IntVar> {
+public class PropTableStr2 extends PredictivePropagator {
 
     //***********************************************************************************
     // VARIABLES
@@ -179,6 +179,15 @@ public class PropTableStr2 extends Propagator<IntVar> {
         }
     }
 
+    @Override
+    public int getVariablesDomainsArity() {
+        int domainsArity = 0;
+        for(int i = 0; i < vars.length; i++) {
+            domainsArity += vars[i].getDomainSize();
+        }
+        return domainsArity;
+    }
+
     /**
      * var class which will save local var information
      */
@@ -246,6 +255,7 @@ public class PropTableStr2 extends Propagator<IntVar> {
                 }
             }
         }
+
     }
 
 }

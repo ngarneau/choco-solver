@@ -9,8 +9,16 @@ import org.chocosolver.solver.variables.IntVar;
  */
 public class PropLargeFactory {
 
-    Propagator<IntVar> getStr2(IntVar[] VARS, Tuples TUPLES) {
+    PredictivePropagator getStr2(IntVar[] VARS, Tuples TUPLES) {
         return new PropTableStr2(VARS, TUPLES.toMatrix());
+    }
+
+    PredictivePropagator getFC(IntVar[] VARS, Tuples TUPLES) {
+        return new PropLargeFC(VARS, TUPLES);
+    }
+
+    PredictivePropagator getGAC2001(IntVar[] VARS, Tuples TUPLES) {
+        return new PropLargeGAC2001(VARS, TUPLES);
     }
 
 }

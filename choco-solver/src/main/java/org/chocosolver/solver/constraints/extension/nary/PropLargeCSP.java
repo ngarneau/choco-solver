@@ -40,7 +40,7 @@ import org.chocosolver.util.ESat;
  * @author Charles Prud'homme
  * @since 08/06/11
  */
-public abstract class PropLargeCSP<R extends LargeRelation> extends Propagator<IntVar> {
+public abstract class PropLargeCSP<R extends LargeRelation> extends PredictivePropagator {
 
     protected final R relation;
 
