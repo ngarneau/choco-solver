@@ -1515,6 +1515,13 @@ public class IntConstraintFactory {
         return new Constraint("Table(" + ALGORITHM + ")", p);
     }
 
+    public static Constraint predictiveTable(IntVar[] VARS, Tuples TUPLES) {
+        if (VARS.length == 2) {
+            table(VARS[0], VARS[1], TUPLES, "");
+        }
+        return new Constraint("Table(Predictive)", new PropLargePredictive(VARS, TUPLES));
+    }
+
     /**
      * Partition SUCCS variables into NBTREES (anti) arborescences
      * <p/> SUCCS[i] = OFFSET+j means that j is the successor of i.
