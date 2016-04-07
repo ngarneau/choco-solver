@@ -1519,7 +1519,9 @@ public class IntConstraintFactory {
         if (VARS.length == 2) {
             table(VARS[0], VARS[1], TUPLES, "");
         }
-        return new Constraint("Table(Predictive)", new PropLargePredictive(VARS, TUPLES, new PropLargeFactory()));
+        PropLargePredictive propagator = new PropLargePredictive(VARS, TUPLES, new PropLargeFactory());
+        propagator.setGenerateData(true);
+        return new Constraint("Table(Predictive)", propagator);
     }
 
     /**

@@ -29,6 +29,7 @@
  */
 package org.chocosolver.solver.constraints.extension.nary;
 
+import com.sun.org.apache.xalan.internal.utils.FeatureManager;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.constraints.extension.Tuples;
@@ -39,7 +40,9 @@ import org.chocosolver.solver.variables.events.PropagatorEventType;
 import org.chocosolver.solver.variables.ranges.IntIterableBitSet;
 import org.chocosolver.solver.variables.ranges.IntIterableSet;
 import org.chocosolver.util.ESat;
+import org.chocosolver.util.tools.Featurizer;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,19 +56,44 @@ import java.util.Map;
  */
 public class PropLargePredictive extends Propagator<IntVar> {
 
+    private BufferedWriter bw;
+    private boolean streamReady = false;
     private boolean generateData = false;
     protected String currentPropagator;
     protected HashMap<String, PredictivePropagator> propagators = new HashMap<>(3);
+    private Featurizer featurizer;
 
     private PropLargePredictive(IntVar[] vars) {
         super(vars, PropagatorPriority.QUADRATIC, true);
+        createLogFile();
+        this.featurizer = new Featurizer(this.solver);
+    }
+
+    private void createLogFile() {
+        File yourFile = new File("score.txt");
+        if(!yourFile.exists()) {
+            try {
+                yourFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            FileWriter fw = new FileWriter(yourFile);
+            bw = new BufferedWriter(fw);
+            streamReady = true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public PropLargePredictive(IntVar[] vars, Tuples tuples, PropLargeFactory propagatorFactory) {
         this(vars);
         this.propagators.put("STR2+", propagatorFactory.getStr2(vars, tuples));
-        this.propagators.put("FC", propagatorFactory.getFC(vars, tuples));
         this.propagators.put("GAC2001", propagatorFactory.getGAC2001(vars, tuples));
+        this.propagators.put("GAC2001+", propagatorFactory.getGAC2001Positive(vars, tuples));
         this.currentPropagator = "STR2+";
     }
 
@@ -120,33 +148,63 @@ public class PropLargePredictive extends Propagator<IntVar> {
     }
 
     private void generateData(int evtmask) throws ContradictionException{
-        Iterator it = this.propagators.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            PredictivePropagator propagator = (PredictivePropagator) pair.getValue();
-            propagator.propagate(evtmask);
-            it.remove();
+        String logString = this.initLogEntry();
+        long startTime = System.nanoTime();
+        this.propagators.get(this.currentPropagator).propagate(evtmask);
+        long endTime = System.nanoTime();
+        long elapsedTime = endTime - startTime;
+        logString += "time:" + elapsedTime;
+
+        try {
+            bw.write(logString + "\n");
+            bw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private void generateData(int idxVarInProp, int mask) throws ContradictionException{
-        Iterator it = this.propagators.entrySet().iterator();
-        IMeasures measures = solver.getMeasures();
-        int numHolesInDomains = solver.getNumHolesInIntVarsDomains();
-        long currentDepth = measures.getCurrentDepth();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            PredictivePropagator propagator = (PredictivePropagator) pair.getValue();
-            int domainArityBefore = propagator.getVariablesDomainsArity();
-            long startTime = System.nanoTime();
-            propagator.propagate(idxVarInProp, mask);
-            long endTime = System.nanoTime();
-            int domainArityAfter = propagator.getVariablesDomainsArity();
-            long duration = (endTime - startTime);
-            // double score = (domainArityAfter / domainArityBefore + 1) / Math.log(duration);
-            propagator.getSolver();
-            it.remove();
+    private void generateData(int idxVarInProp, int mask) throws ContradictionException {
+        String logString = this.initLogEntry();
+        long startTime = System.nanoTime();
+        this.propagators.get(this.currentPropagator).propagate(idxVarInProp, mask);
+        long endTime = System.nanoTime();
+        long elapsedTime = endTime - startTime;
+        logString += "time:" + elapsedTime;
+
+        try {
+            bw.write(logString + "\n");
+            bw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+
+    private String initLogEntry() {
+        String solverVariablesState = this.getSolverVariablesState();
+        String logString = solverVariablesState;
+        HashMap<String, Double> features = this.featurizer.getFeatures();
+        for (Map.Entry<String, Double> entry : features.entrySet())
+        {
+            logString += entry.getKey() + ":" + entry.getValue() + ", ";
+        }
+        return logString;
+    }
+
+    private String getSolverVariablesState() {
+        String logString = "";
+        IntVar[] solverVars;
+        solverVars = solver.retrieveIntVars();
+        for(int i = 0; i < solverVars.length; i++) {
+            IntVar currentVar = solverVars[i];
+            if(currentVar.isInstantiated()) {
+                logString += currentVar.getName() + ":" +currentVar.getValue() + ",";
+            }
+            else {
+                logString += currentVar.getName() + ":None,";
+            }
+        }
+        return logString;
+    }
+
 
 }

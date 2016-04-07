@@ -4,18 +4,22 @@ import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateBitSet;
 import org.chocosolver.solver.Settings;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.variables.IntVar;
-import org.testng.annotations.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.*;
 
 /**
  * Created by Nicolas on 2016-04-04.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class PropLargePredictiveTest {
 
     private PropLargePredictive propPredictive;
@@ -24,8 +28,8 @@ public class PropLargePredictiveTest {
     private Solver solver;
     private IMeasures measures;
 
-    @BeforeClass
-    public void setUp() {
+    @Before
+    public void init() {
         IStateBitSet stateBitSet = mock(IStateBitSet.class);
         Settings settings = mockSettings();
         IEnvironment env = mockEnvironment(stateBitSet);
@@ -41,6 +45,7 @@ public class PropLargePredictiveTest {
     public void test_propagate_call_current_propagator_evtmask() {
         PredictivePropagator propagator = mock(PredictivePropagator.class);
         this.propPredictive.setStr2Propagator(propagator);
+        this.propPredictive.setCurrentPropagator("STR2+");
         try {
             this.propPredictive.propagate(DUMB_INT);
             verify(propagator).propagate(anyInt());
@@ -53,6 +58,7 @@ public class PropLargePredictiveTest {
     public void test_propagate_call_current_propagator_idxVarInProp() {
         PredictivePropagator propagator = mock(PredictivePropagator.class);
         this.propPredictive.setStr2Propagator(propagator);
+        this.propPredictive.setCurrentPropagator("STR2+");
         try {
             this.propPredictive.propagate(DUMB_INT, DUMB_INT);
             verify(propagator).propagate(anyInt(), anyInt());
@@ -65,23 +71,9 @@ public class PropLargePredictiveTest {
     public void test_is_entailed_call_current_propagator() {
         PredictivePropagator propagator = mock(PredictivePropagator.class);
         this.propPredictive.setStr2Propagator(propagator);
+        this.propPredictive.setCurrentPropagator("STR2+");
         this.propPredictive.isEntailed();
         verify(propagator).isEntailed();
-    }
-
-    @Test
-    public void when_generate_data_flag_is_on_call_every_propagators() {
-        PredictivePropagator propagator = mock(PredictivePropagator.class);
-        this.propPredictive.setGenerateData(true);
-        this.propPredictive.setStr2Propagator(propagator);
-        this.propPredictive.setFCPropagator(propagator);
-        this.propPredictive.setGAC2001Propagator(propagator);
-        try {
-            this.propPredictive.propagate(DUMB_INT, DUMB_INT);
-            verify(propagator, times(3)).propagate(anyInt(), anyInt());
-        } catch (ContradictionException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
@@ -89,29 +81,13 @@ public class PropLargePredictiveTest {
         PredictivePropagator propagator = mock(PredictivePropagator.class);
         this.propPredictive.setGenerateData(false);
         this.propPredictive.setStr2Propagator(propagator);
+        this.propPredictive.setCurrentPropagator("STR2+");
         try {
             this.propPredictive.propagate(DUMB_INT, DUMB_INT);
             verify(propagator, times(1)).propagate(anyInt(), anyInt());
         } catch (ContradictionException e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    public void when_generate_data_call_solver_get_mesures() {
-        PredictivePropagator propagator = mock(PredictivePropagator.class);
-        this.propPredictive.setGenerateData(true);
-        this.propPredictive.setStr2Propagator(propagator);
-        this.propPredictive.setFCPropagator(propagator);
-        this.propPredictive.setGAC2001Propagator(propagator);
-        try {
-            this.propPredictive.propagate(DUMB_INT, DUMB_INT);
-            verify(solver).getMeasures();
-            verify(measures).getCurrentDepth();
-        } catch (ContradictionException e) {
-            e.printStackTrace();
-        }
-
     }
 
 
@@ -122,6 +98,7 @@ public class PropLargePredictiveTest {
             when(intVar.getSolver()).thenReturn(solver);
             vars[i] = intVar;
         }
+        when(solver.retrieveIntVars()).thenReturn(vars);
         return vars;
     }
 

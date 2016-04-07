@@ -13,12 +13,4 @@ public abstract class PredictivePropagator extends Propagator<IntVar> {
         super(vars_, priority, false);
     }
 
-    public int getVariablesDomainsArity() {
-        int domainsArity = 0;
-        for(int i = 0; i < vars.length; i++) {
-            domainsArity += vars[i].getDomainSize();
-        }
-        return domainsArity;
-    }
-
 }
