@@ -1,118 +1,202 @@
 package magicSquare;
-import org.chocosolver.solver.constraints.*;
-import org.chocosolver.solver.search.strategy.*;
-import org.chocosolver.solver.variables.*;
-import org.chocosolver.solver.*;
-import org.chocosolver.solver.trace.*;
-import org.chocosolver.solver.search.limits.*;
-import org.chocosolver.solver.search.loop.monitors.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.ICF;
+import org.chocosolver.solver.constraints.IntConstraintFactory;
+import org.chocosolver.solver.constraints.extension.Tuples;
+import org.chocosolver.solver.search.limits.FailCounter;
+import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
+import org.chocosolver.solver.search.strategy.IntStrategyFactory;
+import org.chocosolver.solver.trace.Chatterbox;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.VariableFactory;
 
 public class CarreMagique {
-    public static final int HEURISTIQUE_DEFAUT = 0;
-    public static final int HEURISTIQUE_DOMOVERWDEG = 1;
-    public static final int HEURISTIQUE_IMPACT_BASED_SEARCH = 2;
+	public static final int HEURISTIQUE_DEFAUT = 0;
+	public static final int HEURISTIQUE_DOMOVERWDEG = 1;
+	public static final int HEURISTIQUE_IMPACT_BASED_SEARCH = 2;
 
-    public static final int RESTART_AUCUN = 0;
-    public static final int RESTART_LUBY = 1;
-    public static final int RESTART_GEOMETRIQUE = 2;
-    
-    public static final int COHERENCE_DE_BORNES = 0;
-    public static final int COHERENCE_DE_DOMAINE = 1; 
+	public static final int RESTART_AUCUN = 0;
+	public static final int RESTART_LUBY = 1;
+	public static final int RESTART_GEOMETRIQUE = 2;
 
-    public static void main(String[] args) {
-        final int n = 3;
-        final int sommeMagique = n * (n * n + 1) / 2;
+	public static final int COHERENCE_DE_BORNES = 0;
+	public static final int COHERENCE_DE_DOMAINE = 1;
 
-        final int coherence = COHERENCE_DE_BORNES;
-        final int heuristique = HEURISTIQUE_DEFAUT;
-        final int restart = RESTART_AUCUN;
-        final boolean bris_symetries = false;
+	int n;
+	int magicSum;
 
-        // Creation du solveur
-        Solver solver = new Solver();
+	public CarreMagique(int size) {
+		n = size;
+		magicSum = size * (size * size + 1) / 2;
+	}
 
-        // Creation d'une matrice de dimensions n x n de variables dont les domaines sont les entiers de 1 a n^2.
-        IntVar[][] lignes;
-        if (coherence == COHERENCE_DE_BORNES)
-            lignes = VariableFactory.boundedMatrix("x", n, n, 1, n * n, solver);
-        else
-            lignes = VariableFactory.enumeratedMatrix("x", n, n, 1, n * n, solver);
+	public void solve() {
 
-        // Vecteur contenant toutes les variables de la matrice dans un seul vecteur
-        IntVar[] toutesLesVariables = new IntVar[n * n];
-        for (int i = 0; i < n * n; i++) {
-            toutesLesVariables[i] = lignes[i / n][i % n];
-        }
-        // Ajout d'une contrainte forcant toutes les variables a prendre des variables differentes
-        if (coherence == COHERENCE_DE_BORNES)
-            solver.post(IntConstraintFactory.alldifferent(toutesLesVariables, "BC"));
-        else
-            solver.post(IntConstraintFactory.alldifferent(toutesLesVariables, "AC"));
+		final int coherence = COHERENCE_DE_DOMAINE;
+		final int heuristique = HEURISTIQUE_DEFAUT;
+		final int restart = RESTART_AUCUN;
+		final boolean bris_symetries = false;
 
-        // Creation de la tranpose de la matrice lignes.
-        IntVar[][] colonnes = new IntVar[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                colonnes[i][j] = lignes[j][i];
-            }
-        }
+		// Creation du solveur
+		Solver solver = new Solver();
 
-        // Creation d'une variable n'ayant qu'une seule valeur dans son domaine
-        IntVar variableSommeMagique = VariableFactory.fixed(sommeMagique, solver);
-        IntVar[] diagonale1 = new IntVar[n]; // Contient les variables sur la diagonale negative de la matrice
-        IntVar[] diagonale2 = new IntVar[n]; // Contient les variables sur la diagonale positive de la matrice
-        for (int i = 0; i < n; i++) {
-            // Ajout de deux contraintes forcant les sommes des lignes et des colonnes a etre egales a la constante magique
-            solver.post(IntConstraintFactory.sum(lignes[i], variableSommeMagique));
-            solver.post(IntConstraintFactory.sum(colonnes[i], variableSommeMagique));
-            diagonale1[i] = lignes[i][i];
-            diagonale2[i] = lignes[n - i - 1][i];
-        }
-        // Force la somme des variables sur les deux diagonales a etre egale a la constante somme magique
-        solver.post(IntConstraintFactory.sum(diagonale1, variableSommeMagique));
-        solver.post(IntConstraintFactory.sum(diagonale2, variableSommeMagique));
+		// Creation d'une matrice de dimensions n x n de variables dont les
+		// domaines sont les entiers de 1 a n^2.
+		IntVar[][] lignes;
+		if (coherence == COHERENCE_DE_BORNES)
+			lignes = VariableFactory.boundedMatrix("x", n, n, 1, n * n, solver);
+		else
+			lignes = VariableFactory.enumeratedMatrix("x", n, n, 1, n * n,
+					solver);
 
-        if (bris_symetries) {
-            for (int i = 1; i < n / 2; i++)
-                solver.post(IntConstraintFactory.arithm(lignes[i - 1][i - 1], "<", lignes[i][i]));
+		// Vecteur contenant toutes les variables de la matrice dans un seul
+		// vecteur
+		IntVar[] toutesLesVariables = new IntVar[n * n];
+		for (int i = 0; i < n * n; i++) {
+			toutesLesVariables[i] = lignes[i / n][i % n];
+		}
+		// Ajout d'une contrainte forcant toutes les variables a prendre des
+		// variables differentes
+		if (coherence == COHERENCE_DE_BORNES)
+			solver.post(IntConstraintFactory.alldifferent(toutesLesVariables,
+					"BC"));
+		else
+			solver.post(IntConstraintFactory.alldifferent(toutesLesVariables,
+					"AC"));
 
-            solver.post(IntConstraintFactory.arithm(lignes[0][0], "<", lignes[n - 1][0]));
-            solver.post(IntConstraintFactory.arithm(lignes[0][0], "<", lignes[0][n - 1]));
-            solver.post(IntConstraintFactory.arithm(lignes[0][0], "<", lignes[n - 1][n - 1]));
-            // solver.post(IntConstraintFactory.arithm(lignes[n - 1][0], "<", lignes[0][n - 1]));
-        }
+		for (Constraint constraint : createTableConstraint(lignes)) {
+			solver.post(constraint);
+		}
 
-        switch(heuristique) {
-        case HEURISTIQUE_DOMOVERWDEG:
-            solver.set(IntStrategyFactory.domOverWDeg(toutesLesVariables, 42));
-            break;
-        case HEURISTIQUE_IMPACT_BASED_SEARCH:
-            solver.set(IntStrategyFactory.impact(toutesLesVariables, 42));
-            break;
-        }
+		if (bris_symetries) {
+			for (int i = 1; i < n / 2; i++)
+				solver.post(IntConstraintFactory.arithm(lignes[i - 1][i - 1],
+						"<", lignes[i][i]));
 
-        switch(restart) {
-        case RESTART_LUBY:
-            SearchMonitorFactory.luby(solver, 2, 2, new FailCounter(solver, 2), 25000);
-            break;
-        case RESTART_GEOMETRIQUE:
-            SearchMonitorFactory.geometrical(solver, 2, 2.1, new FailCounter(solver, 2), 25000);
-            break;
-        }
+			solver.post(IntConstraintFactory.arithm(lignes[0][0], "<",
+					lignes[n - 1][0]));
+			solver.post(IntConstraintFactory.arithm(lignes[0][0], "<",
+					lignes[0][n - 1]));
+			solver.post(IntConstraintFactory.arithm(lignes[0][0], "<",
+					lignes[n - 1][n - 1]));
+			// solver.post(IntConstraintFactory.arithm(lignes[n - 1][0], "<",
+			// lignes[0][n - 1]));
+		}
 
-        solver.findSolution();
+		switch (heuristique) {
+		case HEURISTIQUE_DOMOVERWDEG:
+			solver.set(IntStrategyFactory.domOverWDeg(toutesLesVariables, 42));
+			break;
+		case HEURISTIQUE_IMPACT_BASED_SEARCH:
+			solver.set(IntStrategyFactory.impact(toutesLesVariables, 42));
+			break;
+		}
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (lignes[i][j].getValue() < 10)
-                    System.out.print(" ");
-                if (lignes[i][j].getValue() < 100)
-                    System.out.print(" ");
-                System.out.print(lignes[i][j].getValue());
-                System.out.print("  ");
-            }
-            System.out.println("");
-        }
-        Chatterbox.printStatistics(solver);
-    }
+		switch (restart) {
+		case RESTART_LUBY:
+			SearchMonitorFactory.luby(solver, 2, 2, new FailCounter(solver, 2),
+					25000);
+			break;
+		case RESTART_GEOMETRIQUE:
+			SearchMonitorFactory.geometrical(solver, 2, 2.1, new FailCounter(
+					solver, 2), 25000);
+			break;
+		}
+
+		solver.findSolution();
+		do {
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (lignes[i][j].getValue() < 10)
+						System.out.print(" ");
+					if (lignes[i][j].getValue() < 100)
+						System.out.print(" ");
+					System.out.print(lignes[i][j].getValue());
+					System.out.print("  ");
+				}
+				System.out.println("");
+			}
+			System.out.println();
+		} while (solver.nextSolution());
+		Chatterbox.printStatistics(solver);
+	}
+
+	private List<Constraint> createTableConstraint(IntVar[][] magicSquareVars) {
+		Solver linEqSolver = new Solver();
+		IntVar[] equationVar = VariableFactory.enumeratedArray(
+				"linearEquationVar", n, getAllPossibleValues(), linEqSolver);
+		IntVar magicSumVar = VariableFactory.fixed(magicSum, linEqSolver);
+		linEqSolver.post(IntConstraintFactory.alldifferent(equationVar));
+		linEqSolver.post(IntConstraintFactory.sum(equationVar, magicSumVar));
+		Tuples tableEntries = new Tuples();
+		if (linEqSolver.findSolution()) {
+			do {
+				tableEntries.add(getSolutionFromVars(equationVar));
+			} while (linEqSolver.nextSolution());
+		}
+		return generateAllConstraintsFromTuples(tableEntries, magicSquareVars);
+	}
+
+	private int[] getAllPossibleValues() {
+		int[] possibleValues = new int[n * n];
+		for (int i = 0; i < n * n; i++) {
+			possibleValues[i] = i + 1;
+		}
+		return possibleValues;
+	}
+
+	private int[] getSolutionFromVars(IntVar[] vars) {
+		int[] solution = new int[vars.length];
+		for (int i = 0; i < vars.length; i++) {
+			solution[i] = vars[i].getValue();
+		}
+		return solution;
+	}
+
+	private List<Constraint> generateAllConstraintsFromTuples(Tuples tuples,
+			IntVar[][] magicSquareVars) {
+		List<Constraint> constraints = new ArrayList<Constraint>();
+		for (int i = 0; i < n; i++) {
+			constraints.add(ICF.predictiveTable(magicSquareVars[i], tuples));
+			constraints.add(ICF.predictiveTable(getColumn(i, magicSquareVars),
+					tuples));
+		}
+		constraints.add(ICF.predictiveTable(getDiag1(magicSquareVars), tuples));
+		constraints.add(ICF.predictiveTable(getDiag2(magicSquareVars), tuples));
+		return constraints;
+	}
+
+	private IntVar[] getColumn(int index, IntVar[][] vars) {
+		IntVar[] column = new IntVar[n];
+		for (int i = 0; i < n; i++) {
+			column[i] = vars[i][index];
+		}
+		return column;
+	}
+
+	private IntVar[] getDiag1(IntVar[][] vars) {
+		IntVar[] diag1 = new IntVar[n];
+		for (int i = 0; i < n; i++) {
+			diag1[i] = vars[i][i];
+		}
+		return diag1;
+	}
+
+	private IntVar[] getDiag2(IntVar[][] vars) {
+		IntVar[] diag2 = new IntVar[n];
+		for (int i = 0; i < n; i++) {
+			diag2[i] = vars[i][n - i - 1];
+		}
+		return diag2;
+	}
+
+	public static void main(String[] args) {
+		CarreMagique test = new CarreMagique(4);
+		test.solve();
+	}
 }
