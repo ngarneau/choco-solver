@@ -108,21 +108,7 @@ public class CarreMagique {
 			break;
 		}
 
-		solver.findSolution();
-		do {
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (lignes[i][j].getValue() < 10)
-						System.out.print(" ");
-					if (lignes[i][j].getValue() < 100)
-						System.out.print(" ");
-					System.out.print(lignes[i][j].getValue());
-					System.out.print("  ");
-				}
-				System.out.println("");
-			}
-			System.out.println();
-		} while (solver.nextSolution());
+		solver.findAllSolutions();
 		Chatterbox.printStatistics(solver);
 	}
 
@@ -139,6 +125,7 @@ public class CarreMagique {
 				tableEntries.add(getSolutionFromVars(equationVar));
 			} while (linEqSolver.nextSolution());
 		}
+		System.out.println(tableEntries.nbTuples());
 		return generateAllConstraintsFromTuples(tableEntries, magicSquareVars);
 	}
 
@@ -196,7 +183,7 @@ public class CarreMagique {
 	}
 
 	public static void main(String[] args) {
-		CarreMagique test = new CarreMagique(4);
+		CarreMagique test = new CarreMagique(6);
 		test.solve();
 	}
 }
