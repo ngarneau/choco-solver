@@ -30,6 +30,7 @@
 package org.chocosolver.solver.constraints.extension.nary;
 
 import com.sun.org.apache.xalan.internal.utils.FeatureManager;
+
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.constraints.extension.Tuples;
@@ -43,10 +44,17 @@ import org.chocosolver.util.ESat;
 import org.chocosolver.util.tools.Featurizer;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.apache.spark.api.java.*;
 import org.apache.spark.SparkConf;
@@ -63,6 +71,7 @@ public class PropLargePredictive extends Propagator<IntVar> {
     private BufferedWriter bw;
     private boolean streamReady = false;
     private boolean generateData = false;
+    private boolean canReadCPUTime;
     protected String currentPropagator;
     protected HashMap<String, PredictivePropagator> propagators = new HashMap<>(3);
     private Featurizer featurizer;
@@ -72,7 +81,11 @@ public class PropLargePredictive extends Propagator<IntVar> {
         super(vars, PropagatorPriority.QUADRATIC, true);
         createLogFile();
         this.featurizer = new Featurizer(this.solver);
-        this.sc = sparkContext;
+	this.sc = sparkContext;
+        this.canReadCPUTime = ManagementFactory.getThreadMXBean().isThreadCpuTimeSupported();
+        if(canReadCPUTime){
+        	ManagementFactory.getThreadMXBean().setThreadCpuTimeEnabled(true);
+        }
     }
 
     private void createLogFile() {
@@ -155,12 +168,29 @@ public class PropLargePredictive extends Propagator<IntVar> {
 
     private void generateData(int evtmask) throws ContradictionException{
         String logString = this.initLogEntry(evtmask);
-        long startTime = System.nanoTime();
-        this.propagators.get(this.currentPropagator).propagate(evtmask);
-        long endTime = System.nanoTime();
-        long elapsedTime = endTime - startTime;
-        logString += "\t" + elapsedTime;
+        Callable<Long> propagateCall = new Callable<Long>(){
 
+			@Override
+			public Long call() throws ContradictionException {
+				propagators.get(currentPropagator).propagate(evtmask);
+				if(canReadCPUTime){
+					return ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+				}else{
+					return -2l;
+				}
+			}
+        	
+        };
+        Future<Long> callableResult = Executors.newSingleThreadExecutor().submit(propagateCall);
+        long cpuTime = -1;
+        	try {
+				cpuTime = callableResult.get();
+			} catch (ExecutionException e1) {
+				throw new ContradictionException();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+        logString += "time:" + cpuTime;
         try {
             bw.write(logString + "\n");
             bw.flush();
@@ -171,12 +201,29 @@ public class PropLargePredictive extends Propagator<IntVar> {
 
     private void generateData(int idxVarInProp, int mask) throws ContradictionException {
         String logString = this.initLogEntry(mask);
-        long startTime = System.nanoTime();
-        this.propagators.get(this.currentPropagator).propagate(idxVarInProp, mask);
-        long endTime = System.nanoTime();
-        long elapsedTime = endTime - startTime;
-        logString += "\t" + elapsedTime;
+        Callable<Long> propagateCall = new Callable<Long>(){
 
+			@Override
+			public Long call() throws ContradictionException {
+				propagators.get(currentPropagator).propagate(idxVarInProp, mask);
+				if(canReadCPUTime){
+					return ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+				}else{
+					return -2l;
+				}
+			}
+        	
+        };
+        Future<Long> callableResult = Executors.newSingleThreadExecutor().submit(propagateCall);
+        long cpuTime = -1;
+        	try {
+				cpuTime = callableResult.get();
+			} catch (ExecutionException e1) {
+				throw new ContradictionException();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+        logString += "time:" + cpuTime;
         try {
             bw.write(logString + "\n");
             bw.flush();
