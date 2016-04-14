@@ -48,6 +48,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.spark.api.java.*;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.function.Function;
+
 /**
  * <br/>
  *
@@ -62,11 +66,13 @@ public class PropLargePredictive extends Propagator<IntVar> {
     protected String currentPropagator;
     protected HashMap<String, PredictivePropagator> propagators = new HashMap<>(3);
     private Featurizer featurizer;
+    private JavaSparkContext sc;
 
-    private PropLargePredictive(IntVar[] vars) {
+    private PropLargePredictive(IntVar[] vars, JavaSparkContext sparkContext) {
         super(vars, PropagatorPriority.QUADRATIC, true);
         createLogFile();
         this.featurizer = new Featurizer(this.solver);
+        this.sc = sparkContext;
     }
 
     private void createLogFile() {
@@ -89,12 +95,12 @@ public class PropLargePredictive extends Propagator<IntVar> {
         }
     }
 
-    public PropLargePredictive(IntVar[] vars, Tuples tuples, PropLargeFactory propagatorFactory) {
-        this(vars);
+    public PropLargePredictive(IntVar[] vars, Tuples tuples, PropLargeFactory propagatorFactory, JavaSparkContext sparkContext) {
+        this(vars, sparkContext);
         this.propagators.put("STR2+", propagatorFactory.getStr2(vars, tuples));
         this.propagators.put("GAC2001", propagatorFactory.getGAC2001(vars, tuples));
         this.propagators.put("GAC2001+", propagatorFactory.getGAC2001Positive(vars, tuples));
-        this.currentPropagator = "STR2+";
+        this.currentPropagator = "GAC2001+";
     }
 
     public void setGenerateData(boolean flag) {
@@ -148,12 +154,12 @@ public class PropLargePredictive extends Propagator<IntVar> {
     }
 
     private void generateData(int evtmask) throws ContradictionException{
-        String logString = this.initLogEntry();
+        String logString = this.initLogEntry(evtmask);
         long startTime = System.nanoTime();
         this.propagators.get(this.currentPropagator).propagate(evtmask);
         long endTime = System.nanoTime();
         long elapsedTime = endTime - startTime;
-        logString += "time:" + elapsedTime;
+        logString += "\t" + elapsedTime;
 
         try {
             bw.write(logString + "\n");
@@ -164,12 +170,12 @@ public class PropLargePredictive extends Propagator<IntVar> {
     }
 
     private void generateData(int idxVarInProp, int mask) throws ContradictionException {
-        String logString = this.initLogEntry();
+        String logString = this.initLogEntry(mask);
         long startTime = System.nanoTime();
         this.propagators.get(this.currentPropagator).propagate(idxVarInProp, mask);
         long endTime = System.nanoTime();
         long elapsedTime = endTime - startTime;
-        logString += "time:" + elapsedTime;
+        logString += "\t" + elapsedTime;
 
         try {
             bw.write(logString + "\n");
@@ -179,14 +185,22 @@ public class PropLargePredictive extends Propagator<IntVar> {
         }
     }
 
-    private String initLogEntry() {
+    private String initLogEntry(int mask) {
         String solverVariablesState = this.getSolverVariablesState();
-        String logString = solverVariablesState;
-        HashMap<String, Double> features = this.featurizer.getFeatures();
-        for (Map.Entry<String, Double> entry : features.entrySet())
+        //String logString = solverVariablesState;
+        String logString = "";
+        double[] features = this.featurizer.getFeaturesArray(mask);
+        logString += "[";
+        for (int i = 0; i < features.length; i++)
         {
-            logString += entry.getKey() + ":" + entry.getValue() + ", ";
+            if (i == features.length - 1){
+                logString +=  features[i];
+            }
+            else {
+                logString +=  features[i] + ", ";
+            }
         }
+        logString += "]";
         return logString;
     }
 

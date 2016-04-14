@@ -32,6 +32,7 @@ package org.chocosolver.solver.constraints;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.chocosolver.solver.Settings;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.binary.*;
@@ -1515,11 +1516,11 @@ public class IntConstraintFactory {
         return new Constraint("Table(" + ALGORITHM + ")", p);
     }
 
-    public static Constraint predictiveTable(IntVar[] VARS, Tuples TUPLES) {
+    public static Constraint predictiveTable(IntVar[] VARS, Tuples TUPLES, JavaSparkContext sparkContext) {
         if (VARS.length == 2) {
             table(VARS[0], VARS[1], TUPLES, "");
         }
-        PropLargePredictive propagator = new PropLargePredictive(VARS, TUPLES, new PropLargeFactory());
+        PropLargePredictive propagator = new PropLargePredictive(VARS, TUPLES, new PropLargeFactory(), sparkContext);
         propagator.setGenerateData(true);
         return new Constraint("Table(Predictive)", propagator);
     }

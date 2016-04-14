@@ -1,5 +1,6 @@
 package org.chocosolver.solver.constraints.extension.nary;
 
+import org.apache.spark.api.java.JavaSparkContext;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateBitSet;
 import org.chocosolver.solver.Settings;
@@ -38,7 +39,7 @@ public class PropLargePredictiveTest {
         PropLargeFactory factory = mockFactory();
         IntVar[] vars = mockIntVars(solver);
         Tuples tuples = mock(Tuples.class);
-        this.propPredictive = new PropLargePredictive(vars, tuples, factory);
+        this.propPredictive = new PropLargePredictive(vars, tuples, factory, mock(JavaSparkContext.class));
     }
 
     @Test

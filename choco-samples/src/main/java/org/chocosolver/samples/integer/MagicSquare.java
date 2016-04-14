@@ -113,7 +113,7 @@ public class MagicSquare extends AbstractProblem {
 
     @Override
     public void solve() {
-        solver.findSolution();
+        solver.findAllSolutions();
     }
 
     @Override

@@ -29,6 +29,8 @@
  */
 package org.chocosolver.samples.integer;
 
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.chocosolver.samples.AbstractProblem;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.ICF;
@@ -50,10 +52,12 @@ public class Table extends AbstractProblem {
 	//***********************************************************************************
 
 	IntVar[] vars;
-	int nbTuples = 5;
-	int n = 4;
-	int upB = 10;
-	int lowB = -10;
+	int nbTuples = 1000;
+	int n = 15;
+	int upB = 10000;
+	int lowB = -10000;
+	SparkConf sparkConf = new SparkConf().setAppName("Test").setMaster("local[2]");
+	JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
 	//***********************************************************************************
 	// METHODS
@@ -77,7 +81,7 @@ public class Table extends AbstractProblem {
 			tuples.add(tuple);
 			System.out.println();
 		}
-		solver.post(ICF.table(vars,tuples,"STR2+"));
+		solver.post(ICF.predictiveTable(vars,tuples, sparkContext));
 	}
 
 	@Override
