@@ -29,36 +29,19 @@
  */
 package org.chocosolver.solver.constraints.extension.nary;
 
-import com.sun.org.apache.xalan.internal.utils.FeatureManager;
-
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.mllib.tree.model.RandomForestModel;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.events.PropagatorEventType;
-import org.chocosolver.solver.variables.ranges.IntIterableBitSet;
-import org.chocosolver.solver.variables.ranges.IntIterableSet;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.tools.Featurizer;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-
-import org.apache.spark.api.java.*;
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.function.Function;
 
 /**
  * <br/>
@@ -77,11 +60,22 @@ public class PropLargePredictive extends Propagator<IntVar> {
     private Featurizer featurizer;
     private JavaSparkContext sc;
 
+    private static RandomForestModel model;
+    private HashMap<Double, String> modelPropagators = new HashMap<>(2);
+
     private PropLargePredictive(IntVar[] vars, JavaSparkContext sparkContext) {
         super(vars, PropagatorPriority.QUADRATIC, true);
         createLogFile();
         this.featurizer = new Featurizer(this.solver);
-	this.sc = sparkContext;
+        this.sc = sparkContext;
+
+        if(this.model == null) {
+            this.model = RandomForestModel.load(this.sc.sc(), "model");
+        }
+        this.modelPropagators.put(0.0, "GAC2001+");
+        this.modelPropagators.put(1.0, "STR2+");
+        this.modelPropagators.put(2.0, "FC");
+
         this.canReadCPUTime = ManagementFactory.getThreadMXBean().isThreadCpuTimeSupported();
         if(canReadCPUTime){
         	ManagementFactory.getThreadMXBean().setThreadCpuTimeEnabled(true);
@@ -89,7 +83,7 @@ public class PropLargePredictive extends Propagator<IntVar> {
     }
 
     private void createLogFile() {
-        File yourFile = new File("score.txt");
+        File yourFile = new File("score" + System.currentTimeMillis() + ".txt");
         if(!yourFile.exists()) {
             try {
                 yourFile.createNewFile();
@@ -113,7 +107,9 @@ public class PropLargePredictive extends Propagator<IntVar> {
         this.propagators.put("STR2+", propagatorFactory.getStr2(vars, tuples));
         this.propagators.put("GAC2001", propagatorFactory.getGAC2001(vars, tuples));
         this.propagators.put("GAC2001+", propagatorFactory.getGAC2001Positive(vars, tuples));
-        this.currentPropagator = "GAC2001+";
+        this.propagators.put("FC", propagatorFactory.getFC(vars, tuples));
+        this.propagators.put("GAC3rm+", propagatorFactory.getGAC3rmPositive(vars, tuples));
+        this.currentPropagator = "STR2+";
     }
 
     public void setGenerateData(boolean flag) {
@@ -142,7 +138,9 @@ public class PropLargePredictive extends Propagator<IntVar> {
             this.generateData(evtmask);
         }
         else {
-            this.propagators.get(this.currentPropagator).propagate(evtmask);
+            // For now with predict always the same thing
+            double pred = 0.0;
+            this.propagators.get(this.modelPropagators.get(pred)).propagate(evtmask);
         }
     }
 
@@ -152,7 +150,9 @@ public class PropLargePredictive extends Propagator<IntVar> {
             this.generateData(idxVarInProp, mask);
         }
         else {
-            this.propagators.get(this.currentPropagator).propagate(idxVarInProp, mask);
+            // For now with predict always the same thing
+            double pred = 0.0;
+            this.propagators.get(this.modelPropagators.get(pred)).propagate(idxVarInProp, mask);
         }
     }
 
@@ -168,29 +168,18 @@ public class PropLargePredictive extends Propagator<IntVar> {
 
     private void generateData(int evtmask) throws ContradictionException{
         String logString = this.initLogEntry(evtmask);
-        Callable<Long> propagateCall = new Callable<Long>(){
 
-			@Override
-			public Long call() throws ContradictionException {
-				propagators.get(currentPropagator).propagate(evtmask);
-				if(canReadCPUTime){
-					return ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
-				}else{
-					return -2l;
-				}
-			}
-        	
-        };
-        Future<Long> callableResult = Executors.newSingleThreadExecutor().submit(propagateCall);
-        long cpuTime = -1;
-        	try {
-				cpuTime = callableResult.get();
-			} catch (ExecutionException e1) {
-				throw new ContradictionException();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-        logString += "time:" + cpuTime;
+        long totalTime = 0L;
+        int n = 1000;
+        for(int i = 0; i < n; i++) {
+            long starttime = System.nanoTime();
+            propagators.get(currentPropagator).propagate(evtmask);
+            long endtime = System.nanoTime();
+            totalTime += endtime - starttime;
+        }
+        long avgTime = totalTime / n;
+
+        logString += "\t" + avgTime;
         try {
             bw.write(logString + "\n");
             bw.flush();
@@ -201,29 +190,18 @@ public class PropLargePredictive extends Propagator<IntVar> {
 
     private void generateData(int idxVarInProp, int mask) throws ContradictionException {
         String logString = this.initLogEntry(mask);
-        Callable<Long> propagateCall = new Callable<Long>(){
 
-			@Override
-			public Long call() throws ContradictionException {
-				propagators.get(currentPropagator).propagate(idxVarInProp, mask);
-				if(canReadCPUTime){
-					return ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
-				}else{
-					return -2l;
-				}
-			}
-        	
-        };
-        Future<Long> callableResult = Executors.newSingleThreadExecutor().submit(propagateCall);
-        long cpuTime = -1;
-        	try {
-				cpuTime = callableResult.get();
-			} catch (ExecutionException e1) {
-				throw new ContradictionException();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-        logString += "time:" + cpuTime;
+        long totalTime = 0L;
+        int n = 10000;
+        for(int i = 0; i < n; i++) {
+            long starttime = System.nanoTime();
+            propagators.get(currentPropagator).propagate(idxVarInProp, mask);
+            long endtime = System.nanoTime();
+            totalTime += endtime - starttime;
+        }
+        long avgTime = totalTime / n;
+        logString += "\t" + avgTime;
+
         try {
             bw.write(logString + "\n");
             bw.flush();
@@ -233,8 +211,6 @@ public class PropLargePredictive extends Propagator<IntVar> {
     }
 
     private String initLogEntry(int mask) {
-        String solverVariablesState = this.getSolverVariablesState();
-        //String logString = solverVariablesState;
         String logString = "";
         double[] features = this.featurizer.getFeaturesArray(mask);
         logString += "[";
@@ -248,22 +224,6 @@ public class PropLargePredictive extends Propagator<IntVar> {
             }
         }
         logString += "]";
-        return logString;
-    }
-
-    private String getSolverVariablesState() {
-        String logString = "";
-        IntVar[] solverVars;
-        solverVars = solver.retrieveIntVars();
-        for(int i = 0; i < solverVars.length; i++) {
-            IntVar currentVar = solverVars[i];
-            if(currentVar.isInstantiated()) {
-                logString += currentVar.getName() + ":" +currentVar.getValue() + ",";
-            }
-            else {
-                logString += currentVar.getName() + ":None,";
-            }
-        }
         return logString;
     }
 

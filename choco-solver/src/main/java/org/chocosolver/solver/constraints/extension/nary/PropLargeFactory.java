@@ -24,4 +24,7 @@ public class PropLargeFactory {
         return new PropLargeGAC2001Positive(VARS, TUPLES);
     }
 
+    public PredictivePropagator getGAC3rmPositive(IntVar[] vars, Tuples tuples) {
+        return new PropLargeGAC3rmPositive(vars, tuples);
+    }
 }

@@ -52,10 +52,10 @@ public class Table extends AbstractProblem {
 	//***********************************************************************************
 
 	IntVar[] vars;
-	int nbTuples = 1000;
+	int nbTuples = 100;
 	int n = 15;
-	int upB = 10000;
-	int lowB = -10000;
+	int upB = 1000;
+	int lowB = -1000;
 	SparkConf sparkConf = new SparkConf().setAppName("Test").setMaster("local[2]");
 	JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
