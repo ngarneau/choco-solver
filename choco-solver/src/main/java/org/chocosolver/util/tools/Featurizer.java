@@ -95,20 +95,22 @@ public class Featurizer {
     	double phaseTransitionIndicator = 0d;
     	for(int cstrIndex = 0; cstrIndex < solver.getNbCstrs(); cstrIndex++){
     		Constraint cstr = solver.getCstrs()[cstrIndex];
-    		PropLargePredictive prop = (PropLargePredictive) cstr.getPropagator(0);
-    		Tuples tuples = prop.getPropagatorTuple();
-    		int maxValue = 0;
-    		for(int intVarIndex =0; intVarIndex < prop.getVars().length; intVarIndex++){
-    			DisposableValueIterator iter = prop.getVar(intVarIndex).getValueIterator(true);
-    			while(iter.hasNext()){
-    				int value = iter.next();
-    				int count = countNumberOfTupleContainingIntVarValue(intVarIndex, value, tuples);
-    				if(maxValue < count){
-    					maxValue = count;
-    				}
-    			}
+    		if(cstr.getPropagator(0) instanceof PropLargePredictive){
+	    		PropLargePredictive prop = (PropLargePredictive) cstr.getPropagator(0);
+	    		Tuples tuples = prop.getPropagatorTuple();
+	    		int maxValue = 0;
+	    		for(int intVarIndex =0; intVarIndex < prop.getVars().length; intVarIndex++){
+	    			DisposableValueIterator iter = prop.getVar(intVarIndex).getValueIterator(true);
+	    			while(iter.hasNext()){
+	    				int value = iter.next();
+	    				int count = countNumberOfTupleContainingIntVarValue(intVarIndex, value, tuples);
+	    				if(maxValue < count){
+	    					maxValue = count;
+	    				}
+	    			}
+	    		}
+	    		phaseTransitionIndicator += Math.log(1 - maxValue)/Math.log(2);
     		}
-    		phaseTransitionIndicator += Math.log(1 - maxValue)/Math.log(2);
     	}
     	double totalDomainSize = 0.0d;
     	for(int allVarIndex = 0; allVarIndex < vars.length; allVarIndex++){
@@ -123,16 +125,18 @@ public class Featurizer {
    		int count = 0;
     	for(int cstrIndex = 0; cstrIndex < solver.getNbCstrs(); cstrIndex++){
     		Constraint cstr = solver.getCstrs()[cstrIndex];
-    		PropLargePredictive prop = (PropLargePredictive) cstr.getPropagator(0);
-    		Tuples tuples = prop.getPropagatorTuple();
-    		for(int intVarIndex =0; intVarIndex < prop.getVars().length; intVarIndex++){
-    			DisposableValueIterator iter = prop.getVar(intVarIndex).getValueIterator(true);
-    			while(iter.hasNext()){
-    				int value = iter.next();
-    				count += countNumberOfTupleContainingIntVarValue(intVarIndex, value, tuples);
-    			}
+    		if(cstr.getPropagator(0) instanceof  PropLargePredictive){
+	    		PropLargePredictive prop = (PropLargePredictive) cstr.getPropagator(0);
+	    		Tuples tuples = prop.getPropagatorTuple();
+	    		for(int intVarIndex =0; intVarIndex < prop.getVars().length; intVarIndex++){
+	    			DisposableValueIterator iter = prop.getVar(intVarIndex).getValueIterator(true);
+	    			while(iter.hasNext()){
+	    				int value = iter.next();
+	    				count += countNumberOfTupleContainingIntVarValue(intVarIndex, value, tuples);
+	    			}
+	    		}
+	    		tupPerVvpNorm  += (double) count / (double) tuples.nbTuples();
     		}
-    		tupPerVvpNorm  += (double) count / (double) tuples.nbTuples();
     	}
     	return tupPerVvpNorm;
     }
