@@ -59,13 +59,15 @@ public class PropLargePredictive extends Propagator<IntVar> {
     protected HashMap<String, PredictivePropagator> propagators = new HashMap<>(3);
     private Featurizer featurizer;
     private JavaSparkContext sc;
+    private Tuples tuples;
 
     private static RandomForestModel model;
     private HashMap<Double, String> modelPropagators = new HashMap<>(2);
 
-    private PropLargePredictive(IntVar[] vars, JavaSparkContext sparkContext) {
+    private PropLargePredictive(IntVar[] vars, Tuples tuples, JavaSparkContext sparkContext) {
         super(vars, PropagatorPriority.QUADRATIC, true);
         createLogFile();
+        this.tuples = tuples;
         this.featurizer = new Featurizer(this.solver);
         this.sc = sparkContext;
 
@@ -103,7 +105,7 @@ public class PropLargePredictive extends Propagator<IntVar> {
     }
 
     public PropLargePredictive(IntVar[] vars, Tuples tuples, PropLargeFactory propagatorFactory, JavaSparkContext sparkContext) {
-        this(vars, sparkContext);
+        this(vars, tuples, sparkContext);
         this.propagators.put("STR2+", propagatorFactory.getStr2(vars, tuples));
         this.propagators.put("GAC2001", propagatorFactory.getGAC2001(vars, tuples));
         this.propagators.put("GAC2001+", propagatorFactory.getGAC2001Positive(vars, tuples));
@@ -164,6 +166,10 @@ public class PropLargePredictive extends Propagator<IntVar> {
     @Override
     public String toString() {
         return this.propagators.get(this.currentPropagator).toString();
+    }
+    
+    public Tuples getPropagatorTuple(){
+    	return tuples;
     }
 
     private void generateData(int evtmask) throws ContradictionException{

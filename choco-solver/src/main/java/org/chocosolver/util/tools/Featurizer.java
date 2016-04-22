@@ -3,8 +3,13 @@ package org.chocosolver.util.tools;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.extension.Tuples;
+import org.chocosolver.solver.constraints.extension.nary.PropLargePredictive;
 import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.util.iterators.DisposableValueIterator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +40,10 @@ public class Featurizer {
         features.put("m_quart_holes", StatUtils.percentile(domainHoles, 50));
         features.put("l_quart_holes", StatUtils.percentile(domainHoles, 75));
         features.put("current_depth", this.getCurrentDepth());
+        //----------------- HIGH COST FEATURES ----------------------------//
+        features.put("phase_transition_indicator", this.getPhaseTransitionIndicator(vars));
+        features.put("tup_Per_Vpp_Norm", getTupPerVvpNorm(vars));
+        features.put("mean_var_constraints", getMeanNumberOfContraints(vars));
         return features;
     }
 
@@ -80,5 +89,77 @@ public class Featurizer {
     private double getCurrentDepth() {
         IMeasures measures = this.solver.getMeasures();
         return (double) measures.getCurrentDepth();
+    }
+    
+    private double getPhaseTransitionIndicator(IntVar[] vars){
+    	double phaseTransitionIndicator = 0d;
+    	for(int cstrIndex = 0; cstrIndex < solver.getNbCstrs(); cstrIndex++){
+    		Constraint cstr = solver.getCstrs()[cstrIndex];
+    		PropLargePredictive prop = (PropLargePredictive) cstr.getPropagator(0);
+    		Tuples tuples = prop.getPropagatorTuple();
+    		int maxValue = 0;
+    		for(int intVarIndex =0; intVarIndex < prop.getVars().length; intVarIndex++){
+    			DisposableValueIterator iter = prop.getVar(intVarIndex).getValueIterator(true);
+    			while(iter.hasNext()){
+    				int value = iter.next();
+    				int count = countNumberOfTupleContainingIntVarValue(intVarIndex, value, tuples);
+    				if(maxValue < count){
+    					maxValue = count;
+    				}
+    			}
+    		}
+    		phaseTransitionIndicator += Math.log(1 - maxValue)/Math.log(2);
+    	}
+    	double totalDomainSize = 0.0d;
+    	for(int allVarIndex = 0; allVarIndex < vars.length; allVarIndex++){
+    		IntVar var = vars[allVarIndex];
+    		totalDomainSize += Math.log(var.getDomainSize());
+    	}
+    	return phaseTransitionIndicator / totalDomainSize;
+    }
+    
+    private double getTupPerVvpNorm(IntVar[] vars){
+    	double tupPerVvpNorm = 0d;
+   		int count = 0;
+    	for(int cstrIndex = 0; cstrIndex < solver.getNbCstrs(); cstrIndex++){
+    		Constraint cstr = solver.getCstrs()[cstrIndex];
+    		PropLargePredictive prop = (PropLargePredictive) cstr.getPropagator(0);
+    		Tuples tuples = prop.getPropagatorTuple();
+    		for(int intVarIndex =0; intVarIndex < prop.getVars().length; intVarIndex++){
+    			DisposableValueIterator iter = prop.getVar(intVarIndex).getValueIterator(true);
+    			while(iter.hasNext()){
+    				int value = iter.next();
+    				count += countNumberOfTupleContainingIntVarValue(intVarIndex, value, tuples);
+    			}
+    		}
+    		tupPerVvpNorm  += (double) count / (double) tuples.nbTuples();
+    	}
+    	return tupPerVvpNorm;
+    }
+    
+    private int countNumberOfTupleContainingIntVarValue(int varIndex, int value, Tuples tuples){
+    	int count = 0;
+    	for(int tupleIndex = 0; tupleIndex < tuples.nbTuples(); tupleIndex++){
+    		if(tuples.get(tupleIndex)[varIndex] == value){
+    			count++;
+    		}
+    	}
+    	return count;
+    }
+    
+    private double getMeanNumberOfContraints(IntVar[] vars){
+    	double totalConstraint = solver.getCstrs().length * vars.length;
+    	double totalEffectiveConstraint = 0.d;
+    	for(IntVar var : vars){
+    		for(Constraint cstr : solver.getCstrs()){
+    			for(int cstrVarIndex = 0; cstrVarIndex < cstr.getPropagator(0).getVars().length; cstrVarIndex++){
+    				if(var.getId() == cstr.getPropagator(0).getVar(cstrVarIndex).getId()){
+    					totalEffectiveConstraint++;
+    					break;
+    				}
+    			}
+    		}
+    	}
+    	return totalEffectiveConstraint / totalConstraint;
     }
 }
