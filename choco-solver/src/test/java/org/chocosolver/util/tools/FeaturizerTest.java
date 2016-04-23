@@ -8,6 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import static org.mockito.Mockito.*;
 
@@ -62,7 +63,7 @@ public class FeaturizerTest {
         IntVar[] vars = mockIntVars(solver);
         Featurizer featurizer = new Featurizer(solver);
 
-        HashMap<String, Double> features = featurizer.getFeatures();
+        TreeMap<String, Double> features = featurizer.getFeatures();
 
         assertEquals(8, features.size());
     }

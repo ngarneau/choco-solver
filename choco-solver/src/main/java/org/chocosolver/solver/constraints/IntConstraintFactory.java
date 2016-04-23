@@ -1521,7 +1521,7 @@ public class IntConstraintFactory {
             table(VARS[0], VARS[1], TUPLES, "");
         }
         PropLargePredictive propagator = new PropLargePredictive(VARS, TUPLES, new PropLargeFactory(), sparkContext);
-        // propagator.setGenerateData(true);
+        propagator.setGenerateData(true);
         return new Constraint("Table(Predictive)", propagator);
     }
 

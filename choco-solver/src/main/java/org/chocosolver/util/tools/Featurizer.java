@@ -14,6 +14,7 @@ import org.chocosolver.util.iterators.DisposableValueIterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * Created by Nicolas on 2016-04-06.
@@ -26,8 +27,8 @@ public class Featurizer {
         this.solver = solver;
     }
 
-    public HashMap<String, Double> getFeatures() {
-        HashMap<String, Double> features = new HashMap<>();
+    public TreeMap<String, Double> getFeatures() {
+        TreeMap<String, Double> features = new TreeMap<>();
         IntVar[] vars = solver.retrieveIntVars();
         double[] domainSizes = this.getDomainSizes(vars);
         double[] domainHoles = this.getDomainHoles(vars);
@@ -48,7 +49,7 @@ public class Featurizer {
     }
 
     public double[] getFeaturesArray(int mask) {
-        HashMap<String, Double> featuresHashmap = this.getFeatures();
+        TreeMap<String, Double> featuresHashmap = this.getFeatures();
         featuresHashmap.put("mask", (double)mask);
         Collection<Double> featuresCollection = featuresHashmap.values();
         return featuresCollection.stream().mapToDouble(Double::doubleValue).toArray();
