@@ -3,6 +3,8 @@ package org.chocosolver.util.tools;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.search.measure.IMeasures;
 import org.chocosolver.solver.variables.IntVar;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -22,7 +24,7 @@ public class FeaturizerTest {
 
     @Test
     public void test_get_features_call_solver_get_variables() {
-        Solver solver = mock(Solver.class);
+        Solver solver = mockSolver();
         IntVar[] vars = mockIntVars(solver);
         Featurizer featurizer = new Featurizer(solver);
 
@@ -33,7 +35,7 @@ public class FeaturizerTest {
 
     @Test
     public void test_get_features_call_variables_get_domain_size() {
-        Solver solver = mock(Solver.class);
+        Solver solver = mockSolver();
         IntVar[] vars = mockIntVars(solver);
         Featurizer featurizer = new Featurizer(solver);
 
@@ -46,7 +48,7 @@ public class FeaturizerTest {
 
     @Test
     public void test_get_features_call_variables_get_range() {
-        Solver solver = mock(Solver.class);
+        Solver solver = mockSolver();
         IntVar[] vars = mockIntVars(solver);
         Featurizer featurizer = new Featurizer(solver);
 
@@ -59,13 +61,13 @@ public class FeaturizerTest {
 
     @Test
     public void test_get_features_return_eight_features() {
-        Solver solver = mock(Solver.class);
+        Solver solver = mockSolver();
         IntVar[] vars = mockIntVars(solver);
         Featurizer featurizer = new Featurizer(solver);
 
         TreeMap<String, Double> features = featurizer.getFeatures();
 
-        assertEquals(8, features.size());
+        assertEquals(12, features.size());
     }
 
 
@@ -81,6 +83,15 @@ public class FeaturizerTest {
         }
         when(solver.retrieveIntVars()).thenReturn(vars);
         return vars;
+    }
+
+    private Solver mockSolver() {
+        Solver solver = mock(Solver.class);
+        IMeasures measures = mock(IMeasures.class);
+        when(solver.getMeasures()).thenReturn(measures);
+        when(solver.getCstrs()).thenReturn(new Constraint[]{});
+        when(measures.getCurrentDepth()).thenReturn(1L);
+        return solver;
     }
 
 }
