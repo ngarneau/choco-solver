@@ -110,7 +110,7 @@ public class Featurizer {
 	    				}
 	    			}
 	    		}
-	    		phaseTransitionIndicator += Math.log(1 - maxValue)/Math.log(2);
+	    		phaseTransitionIndicator += Math.log(1 - (double)maxValue/(double)tuples.nbTuples())/Math.log(2);
     		}
     	}
     	double totalDomainSize = 0.0d;
@@ -118,7 +118,7 @@ public class Featurizer {
     		IntVar var = vars[allVarIndex];
     		totalDomainSize += Math.log(var.getDomainSize());
     	}
-    	return phaseTransitionIndicator / totalDomainSize;
+    	return -1* phaseTransitionIndicator / totalDomainSize;
     }
     
     private double getTupPerVvpNorm(IntVar[] vars){
